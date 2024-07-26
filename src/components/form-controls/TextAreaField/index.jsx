@@ -1,29 +1,26 @@
-function InputField({
+function TextAreaField({
   id,
   label,
   errorMessage,
   register,
   autofocus = false,
   required = false,
-  type = 'text',
   placeholder = '',
-  readOnly = false,
 }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
       <label htmlFor={id}>
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-      <input
-        readOnly={readOnly}
+      <textarea
         placeholder={placeholder}
         autoFocus={autofocus}
         {...register}
-        type={type}
         id={id}
         name={id}
-        className="border-gray w-full border border-solid px-3 py-2 outline-blue-500"
-      />
+        rows={4}
+        className="border-gray w-full resize-none border border-solid px-3 py-2 outline-blue-500"
+      ></textarea>
       {errorMessage && (
         <p className="px-1 text-sm text-red-500">{errorMessage}</p>
       )}
@@ -31,4 +28,4 @@ function InputField({
   );
 }
 
-export default InputField;
+export default TextAreaField;

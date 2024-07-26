@@ -1,19 +1,25 @@
+import { useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 
-import { useState } from 'react';
-
 import { FaCheck } from 'react-icons/fa6';
+import userApi from '~/apis/userApi';
+import { useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
+import { unwrapResult } from '@reduxjs/toolkit';
+import { login } from './userSlice';
+import { useNavigate } from 'react-router-dom';
 
 AuthenticationPage.propTypes = {};
 
 function AuthenticationPage() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const schema = yup.object().shape({
-    identifier: yup.string().required('Vui lòng nhập tài khoản.'),
+    email: yup.string().required('Vui lòng nhập tài khoản.'),
     password: yup.string().required('Vui lòng nhập mật khẩu.'),
   });
-
   const [rememberPassword, setRememberPassword] = useState(false);
 
   const handleRememberPassword = (e) => {
@@ -23,12 +29,26 @@ function AuthenticationPage() {
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
 
-  const formSubmit = async (data) => {};
+  // const formSubmit = async (data) => {
+  //   const res = await userApi.login(data);
+  // };
+
+  const formSubmit = async (values) => {
+    try {
+      const action = login(values);
+      const resultAction = await dispatch(action);
+      const user = unwrapResult(resultAction);
+      console.log('Infor user:', user);
+      navigate('/');
+    } catch (error) {
+      toast.error('Error!!!');
+    }
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
@@ -43,15 +63,15 @@ function AuthenticationPage() {
           <div className="flex flex-col gap-1">
             <label htmlFor="login-account">Tài khoản</label>
             <input
-              {...register('identifier')}
+              {...register('email')}
               autoFocus={true}
               id="login-account"
               className="border-gray h-10 w-full rounded border border-solid px-4 py-2 outline-blue-400"
               placeholder="Tên đăng nhập..."
             />
-            {errors.identifier?.message && (
+            {errors.email?.message && (
               <p className="px-2 text-sm text-red-500">
-                {errors.identifier?.message}
+                {errors.email?.message}
               </p>
             )}
           </div>
@@ -62,6 +82,7 @@ function AuthenticationPage() {
               id="login-password"
               className="border-gray h-10 w-full rounded border border-solid px-4 py-2 outline-blue-400"
               placeholder="Mật khẩu..."
+              type="password"
             />
             {errors.password?.message && (
               <p className="px-2 text-sm text-red-500">

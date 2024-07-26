@@ -1,18 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import CreateProductForm from './CreateForm';
 import { Route, Routes } from 'react-router-dom';
-import ProductsList from './ProductsList';
-import AddNewProduct from './AddNewProduct';
+import ProductsList from './pages/ProductList';
+import ProductDetail from './pages/ProductDetail';
+import CreateProduct from './pages/CreateProduct';
 
-Products.propTypes = {};
-
-function Products(props) {
+function ProductPage() {
   return (
     <Routes>
       <Route path="/" element={<ProductsList />} />
-      <Route path="/create" element={<AddNewProduct />} />
+      <Route path="/:id" element={<ProductDetail />} />
+      <Route path="/create" element={<CreateProduct />} />
     </Routes>
   );
 }
 
-export default Products;
+export default ProductPage;

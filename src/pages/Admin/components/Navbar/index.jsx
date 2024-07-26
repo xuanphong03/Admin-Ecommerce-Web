@@ -3,62 +3,71 @@ import { NavLink } from 'react-router-dom';
 const NavList = [
   {
     id: '1',
+    name: 'Thống kê doanh thu',
     path: '/',
-    name: 'Dashboard',
   },
   {
-    id: '5',
+    id: '2',
     name: 'Kho hàng',
     path: '/warehouse',
   },
   {
-    id: '2',
-    name: 'Sản phẩm',
-    children: [
-      {
-        id: '2.1',
-        path: '/products/',
-        name: 'Danh sách sản phẩm',
-      },
-      {
-        id: '2.2',
-        path: '/products/create',
-        name: 'Tạo mới sản phẩm',
-      },
-    ],
-  },
-  {
     id: '3',
     name: 'Loại sản phẩm',
-    children: [
-      { id: '3.1', path: '/categories/', name: 'Danh sách loại sản phẩm' },
-      { id: '3.2', path: '/categories/create', name: 'Thêm mới loại sản phẩm' },
-    ],
+    path: '/categories',
   },
   {
     id: '4',
-    name: 'Đơn hàng',
+    name: 'Sản phẩm',
     children: [
-      { id: '4.1', path: '/orders/', name: 'Danh sách đơn hàng' },
+      {
+        id: '4.1',
+        path: '/product',
+        name: 'Danh sách sản phẩm',
+      },
       {
         id: '4.2',
-        path: '/orders/received',
-        name: 'Đơn hàng đã giao thành công',
+        path: '/product/create',
+        name: 'Thêm sản phẩm',
       },
-      { id: '4.3', path: '/orders/delivering', name: 'Đơn hàng đang giao' },
-      { id: '4.4', path: '/orders/cancelled', name: 'Đơn hàng đã hủy' },
+    ],
+  },
+
+  {
+    id: '5',
+    name: 'Đơn hàng',
+    children: [
+      { id: '5.1', path: '/orders/', name: 'Danh sách đơn hàng' },
+      {
+        id: '5.2',
+        path: '/orders/received',
+        name: 'Đơn hàng đã giao',
+      },
+      { id: '5.3', path: '/orders/delivering', name: 'Đơn hàng đang giao' },
+      { id: '5.4', path: '/orders/cancelled', name: 'Đơn hàng đã hủy' },
+    ],
+  },
+  {
+    id: '6',
+    name: 'Hỗ trợ khách hàng',
+    children: [
+      {
+        id: '6.1',
+        name: 'Tin nhắn',
+        path: '/support/message',
+      },
     ],
   },
 ];
 
 function Navbar() {
   return (
-    <nav className="my-10">
-      <ul>
+    <nav className="my-8">
+      <ul className="text-sm">
         {NavList.map((navItem) => {
           if (navItem.children) {
             return (
-              <li className="p-2" key={navItem.id}>
+              <li className="mb-1 p-2" key={navItem.id}>
                 <span className="font-medium uppercase">{navItem.name}</span>
                 <ul className="pl-5">
                   {navItem.children.map((navChildrenItem) => (
@@ -79,7 +88,7 @@ function Navbar() {
             );
           }
           return (
-            <li key={navItem.id}>
+            <li className="mb-1" key={navItem.id}>
               <NavLink
                 to={navItem.path}
                 className={({ isActive }) =>
