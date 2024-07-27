@@ -6,6 +6,7 @@ import CategoriesPage from './pages/Categories';
 import DashboardPage from './pages/Dashboard';
 import ProductsList from './pages/Products';
 import ProductPage from './pages/Products';
+import Chatroom from './pages/Chat/Chatroom';
 
 AdminPage.propTypes = {};
 
@@ -36,6 +37,7 @@ function AdminPage() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/product/*" element={<ProductPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/support/message" element={<Chatroom />} />
         </Routes>
       </main>
     </div>
