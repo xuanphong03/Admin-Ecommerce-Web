@@ -25,7 +25,7 @@ function Chatroom() {
 
   useEffect(() => {
     // Connect to the WebSocket server
-    socketRef.current = io('http://your-websocket-server-url');
+    socketRef.current = io('http://localhost:8080');
 
     // Listen for messages from the server
     socketRef.current.on('message', (message) => {
