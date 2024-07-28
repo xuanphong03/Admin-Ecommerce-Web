@@ -1,64 +1,59 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TableHeader from '../components/TableHeader';
 import { formatPrice } from '~/utils/fomatCurrency';
 import { TiEdit } from 'react-icons/ti';
 import { MdDeleteOutline } from 'react-icons/md';
 import { FaEye } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import CreateProductForm from '../CreateForm';
+import productApi from '~/apis/productApi';
 function ProductsList() {
-  const handleDeleteProduct = (id) => {};
-  const [productsList, setProductsList] = useState([
-    {
-      id: 1,
-      img: `https://firebasestorage.googleapis.com/v0/b/ecommerce-website-5ff4a.appspot.com/o/product_images%2Fproduct04.png?alt=media&token=a51497fc-4824-4523-9101-fe19ac47025f`,
-      name: `ASUS FHD Gaming Laptop ASUS FHD Gaming Laptop ASUS FHD Gaming Laptop
-          ASUS FHD Gaming Laptop`,
-      price: 5000000,
-      salePercent: 0,
-      description: `Lorem Ipsum is simply dummy text of the printing and typesetting
-          industry. Lorem Ipsum has been the standard dummy text ever since the
-          1500s, when an unknown printer took a galley of type and scrambled it
-          to make a type specimen book. It has survived not only five centuries,
-          but also the leap into electronic typesetting, remaining essentially
-          unchanged. It was popularised in the 1960s with the release of
-          Letraset sheets containing Lorem Ipsum passages, and more recently
-          with desktop publishing software like Aldus PageMaker including
-          versions of Lorem Ipsum`,
-      quantity: 100,
-    },
-    {
-      id: 2,
-      img: `https://firebasestorage.googleapis.com/v0/b/ecommerce-website-5ff4a.appspot.com/o/product_images%2Fproduct01.png?alt=media&token=527fbc62-8677-4cb1-b00c-0d149f9c3631`,
-      name: `HAVIT HV-G92 Gamepad`,
-      price: 5000000,
-      salePercent: 10,
-      description: `Lorem Ipsum is simply dummy text of the printing and typesetting
-          industry. Lorem Ipsum has been the standard dummy text ever since the
-          1500s, when an unknown printer took a galley of type and scrambled it
-          to make a type specimen book. It has survived not only five centuries,
-          but also the leap into electronic typesetting, remaining essentially
-          unchanged. It was popularised in the 1960s with the release of
-          Letraset sheets containing Lorem Ipsum passages, and more recently
-          with desktop publishing software like Aldus PageMaker including
-          versions of Lorem Ipsum`,
-      quantity: 100,
-    },
-  ]);
-  const [isOpenForm, setIsOpenForm] = useState(false);
+  const [productsList, setProductsList] = useState([]);
   const [isCreating, setIsCreating] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [updatedProduct, setUpdatedProduct] = useState(null);
 
-  const handleCreateProduct = (data) => {
-    console.log(data);
+  const fetchProducts = async () => {
+    try {
+      const { data } = await productApi.getAllProducts();
+      console.log('data all products', data);
+      setProductsList(data);
+    } catch (error) {
+      // console.error(error);
+    }
   };
-  const handleUpdateProduct = (data) => {
-    console.log(data);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleCreateProduct = async (data) => {
+    try {
+      const { images, ...payload } = data;
+      console.log(payload);
+      const response = await productApi.addNewProduct({
+        ...payload,
+        saleDiscountPercent: 0,
+      });
+      // console.log(response);
+      await fetchProducts();
+      setIsCreating(false);
+    } catch (error) {
+      // throw new Error(error);
+    }
   };
+  const handleDeleteProduct = (id) => {};
+
   return (
     <>
       <section className="relative px-5 py-6">
-        <div className="">
+        <div className="border-b border-solid border-black pb-5">
+          <button
+            className="rounded bg-green-600 px-5 py-2 text-sm text-[#f5f5f5]"
+            onClick={() => setIsCreating(true)}
+          >
+            Thêm sản phâm mới
+          </button>
+        </div>
+        <div className="pt-5">
           <TableHeader />
           <div className="w-full py-2 shadow-table">
             {productsList.map((productItem, index) => (
@@ -68,32 +63,33 @@ function ProductsList() {
               >
                 <div className="flex justify-between py-3 text-sm">
                   <div className="flex basis-[10%] items-center justify-center text-center">
-                    <p>{productItem.id}</p>
+                    <p>{index + 1}</p>
                   </div>
                   <div className="flex basis-[5%] items-center justify-center text-center">
                     <div className="size-10">
                       <img
                         className="max-w-full"
                         alt="product thumbnail"
-                        src={productItem.img}
+                        src={productItem.images.length && productItem.images[0]}
                       />
                     </div>
                   </div>
-                  <div className="flex basis-[20%] items-center">
+                  <div className="flex basis-[20%] items-center justify-center">
                     <h3 className="line-clamp-2 px-5">{productItem.name}</h3>
                   </div>
                   <div className="flex basis-[10%] items-center justify-center text-center">
-                    <p>{formatPrice(productItem.price, 'VNĐ')}</p>
+                    <p>{formatPrice(productItem.originalPrice, 'VNĐ')}</p>
                   </div>
                   <div className="flex basis-[10%] items-center justify-center text-center">
-                    <p>{productItem.salePercent}%</p>
+                    <p>{formatPrice(productItem.finalPrice, 'VNĐ')}</p>
                   </div>
-                  <div className="flex basis-[20%] items-center">
+                  <div className="flex basis-[10%] items-center justify-center text-center">
+                    <p>{productItem.saleDiscountPercent}%</p>
+                  </div>
+                  <div className="flex basis-[20%] items-center justify-center">
                     <p className="line-clamp-2">{productItem.description}</p>
                   </div>
-                  <div className="flex basis-[10%] items-center justify-center text-center">
-                    <p>{productItem.quantity}</p>
-                  </div>
+
                   <div className="flex basis-[15%] flex-col items-center justify-center gap-2 text-xs">
                     <Link
                       to={`/product/${productItem.id}`}
@@ -102,17 +98,7 @@ function ProductsList() {
                       Chi tiết
                       <FaEye />
                     </Link>
-                    <button
-                      onClick={() => {
-                        setIsOpenForm(true);
-                        setIsUpdating(true);
-                        setUpdatedProduct(productItem);
-                      }}
-                      className="flex w-1/2 items-center justify-center gap-2 rounded bg-green-600 px-3 py-2 text-[#fafafa] hover:bg-green-500"
-                    >
-                      Sửa
-                      <TiEdit />
-                    </button>
+
                     <button
                       onClick={handleDeleteProduct}
                       className="flex w-1/2 items-center justify-center gap-2 rounded bg-red-600 px-3 py-2 text-[#fafafa] hover:bg-red-500"
@@ -127,15 +113,28 @@ function ProductsList() {
           </div>
         </div>
       </section>
-      {isOpenForm && (
+      {isCreating && (
         <>
           <div
             onClick={() => {
-              setIsOpenForm(false);
               setIsCreating(false);
             }}
             className="fixed inset-0 z-[9999] bg-black opacity-40"
           ></div>
+          <div className="absolute left-1/2 top-1/2 z-[99999] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded bg-white px-5 pb-8 pt-5">
+            <h2 className="mb-10 text-center text-xl font-medium uppercase">
+              Thêm sản phẩm
+            </h2>
+            <span
+              onClick={() => {
+                setIsCreating(false);
+              }}
+              className="absolute right-0 top-0 flex size-10 cursor-pointer items-center justify-center text-3xl"
+            >
+              &times;
+            </span>
+            <CreateProductForm onSubmit={handleCreateProduct} />
+          </div>
         </>
       )}
     </>

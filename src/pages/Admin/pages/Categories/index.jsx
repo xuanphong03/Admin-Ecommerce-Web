@@ -11,18 +11,9 @@ function CategoriesPage() {
       categoryName: 'Điện thoại',
       categoryStatus: 'Còn kinh doanh',
       brandsList: [
-        {
-          id: 1,
-          name: 'Iphone',
-        },
-        {
-          id: 2,
-          name: 'Samsung',
-        },
-        {
-          id: 3,
-          name: 'Huawei',
-        },
+        { id: 1, name: 'Iphone' },
+        { id: 2, name: 'Samsung' },
+        { id: 3, name: 'Huawei' },
       ],
     },
     {
@@ -30,26 +21,11 @@ function CategoriesPage() {
       categoryName: 'Máy tính',
       categoryStatus: 'Còn kinh doanh',
       brandsList: [
-        {
-          id: 1,
-          name: 'Dell',
-        },
-        {
-          id: 2,
-          name: 'Lenovo',
-        },
-        {
-          id: 3,
-          name: 'Macbook',
-        },
-        {
-          id: 4,
-          name: 'Asus',
-        },
-        {
-          id: 5,
-          name: 'Acer',
-        },
+        { id: 1, name: 'Dell' },
+        { id: 2, name: 'Lenovo' },
+        { id: 3, name: 'Macbook' },
+        { id: 4, name: 'Asus' },
+        { id: 5, name: 'Acer' },
       ],
     },
     {
@@ -57,14 +33,8 @@ function CategoriesPage() {
       categoryName: 'Đồng hồ',
       categoryStatus: 'Ngừng kinh doanh',
       brandsList: [
-        {
-          id: 1,
-          name: 'Apple Watch',
-        },
-        {
-          id: 1,
-          name: 'Huawei',
-        },
+        { id: 1, name: 'Apple Watch' },
+        { id: 1, name: 'Huawei' },
       ],
     },
     {
@@ -72,26 +42,11 @@ function CategoriesPage() {
       categoryName: 'Máy ảnh',
       categoryStatus: 'Còn kinh doanh',
       brandsList: [
-        {
-          id: 1,
-          name: 'Fujifilm ',
-        },
-        {
-          id: 2,
-          name: 'Kodak',
-        },
-        {
-          id: 3,
-          name: 'Canon',
-        },
-        {
-          id: 4,
-          name: 'Panasonic',
-        },
-        {
-          id: 5,
-          name: 'Samsung',
-        },
+        { id: 1, name: 'Fujifilm ' },
+        { id: 2, name: 'Kodak' },
+        { id: 3, name: 'Canon' },
+        { id: 4, name: 'Panasonic' },
+        { id: 5, name: 'Samsung' },
       ],
     },
     {
@@ -99,14 +54,8 @@ function CategoriesPage() {
       categoryName: 'Máy điện tử',
       categoryStatus: 'Còn kinh doanh',
       brandsList: [
-        {
-          id: 1,
-          name: 'Sony',
-        },
-        {
-          id: 2,
-          name: 'Xiaomi',
-        },
+        { id: 1, name: 'Sony' },
+        { id: 2, name: 'Xiaomi' },
       ],
     },
     {
@@ -114,18 +63,9 @@ function CategoriesPage() {
       categoryName: 'Tai nghe',
       categoryStatus: 'Còn kinh doanh',
       brandsList: [
-        {
-          id: 1,
-          name: 'Sony',
-        },
-        {
-          id: 2,
-          name: 'Marshall',
-        },
-        {
-          id: 3,
-          name: 'Yamaha',
-        },
+        { id: 1, name: 'Sony' },
+        { id: 2, name: 'Marshall' },
+        { id: 3, name: 'Yamaha' },
       ],
     },
   ]);

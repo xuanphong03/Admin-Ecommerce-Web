@@ -11,7 +11,7 @@ function InputField({
 }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
-      <label htmlFor={id}>
+      <label className="w-fit" htmlFor={id}>
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <input
@@ -22,7 +22,7 @@ function InputField({
         type={type}
         id={id}
         name={id}
-        className="border-gray w-full border border-solid px-3 py-2 outline-blue-500"
+        className={`${readOnly ? 'bg-gray-200 outline-none' : 'outline-blue-500'} border-gray w-full rounded border border-solid px-3 py-2`}
       />
       {errorMessage && (
         <p className="px-1 text-sm text-red-500">{errorMessage}</p>
