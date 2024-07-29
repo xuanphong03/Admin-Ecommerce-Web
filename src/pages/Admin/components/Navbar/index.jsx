@@ -25,11 +25,6 @@ const NavList = [
         path: '/product',
         name: 'Danh sách sản phẩm',
       },
-      // {
-      //   id: '4.2',
-      //   path: '/product/create',
-      //   name: 'Thêm sản phẩm',
-      // },
     ],
   },
 

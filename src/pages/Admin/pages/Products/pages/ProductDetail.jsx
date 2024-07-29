@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import productApi from '~/apis/productApi';
-import { formatPrice } from '~/utils/fomatCurrency';
+import { formatPrice } from '~/utils/formatCurrency';
 
-ProductDetail.propTypes = {};
-
-function ProductDetail(props) {
+function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState({});
   useEffect(() => {
     (async () => {
       const response = await productApi.getProduct({ id });
       setProduct(response);
-      console.log('Response product detail', response);
     })();
-  }, []);
+  }, [id]);
 
   return (
     <div className="px-10 py-5">

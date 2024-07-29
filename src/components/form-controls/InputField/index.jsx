@@ -8,6 +8,7 @@ function InputField({
   type = 'text',
   placeholder = '',
   readOnly = false,
+  step,
 }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
@@ -22,6 +23,7 @@ function InputField({
         type={type}
         id={id}
         name={id}
+        step={step}
         className={`${readOnly ? 'bg-gray-200 outline-none' : 'outline-blue-500'} border-gray w-full rounded border border-solid px-3 py-2`}
       />
       {errorMessage && (

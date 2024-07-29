@@ -1,93 +1,83 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaRegEdit } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import CreateCategoryForm from './Forms/CreateCategoryForm';
 import UpdateCategoryForm from './Forms/UpdateCategoryForm';
+import categoryApi from '~/apis/categoryApi';
+import { MdDeleteOutline } from 'react-icons/md';
+import DeleteForm from './Forms/DeleteForm';
 
 function CategoriesPage() {
-  const [categoriesList, setCategoriesList] = useState([
-    {
-      categoryCode: '3MurDPuL',
-      categoryName: 'Điện thoại',
-      categoryStatus: 'Còn kinh doanh',
-      brandsList: [
-        { id: 1, name: 'Iphone' },
-        { id: 2, name: 'Samsung' },
-        { id: 3, name: 'Huawei' },
-      ],
-    },
-    {
-      categoryCode: 'ERrxfwgM',
-      categoryName: 'Máy tính',
-      categoryStatus: 'Còn kinh doanh',
-      brandsList: [
-        { id: 1, name: 'Dell' },
-        { id: 2, name: 'Lenovo' },
-        { id: 3, name: 'Macbook' },
-        { id: 4, name: 'Asus' },
-        { id: 5, name: 'Acer' },
-      ],
-    },
-    {
-      categoryCode: 'ddn0hFQR',
-      categoryName: 'Đồng hồ',
-      categoryStatus: 'Ngừng kinh doanh',
-      brandsList: [
-        { id: 1, name: 'Apple Watch' },
-        { id: 1, name: 'Huawei' },
-      ],
-    },
-    {
-      categoryCode: 'mgTAa3JQ',
-      categoryName: 'Máy ảnh',
-      categoryStatus: 'Còn kinh doanh',
-      brandsList: [
-        { id: 1, name: 'Fujifilm ' },
-        { id: 2, name: 'Kodak' },
-        { id: 3, name: 'Canon' },
-        { id: 4, name: 'Panasonic' },
-        { id: 5, name: 'Samsung' },
-      ],
-    },
-    {
-      categoryCode: 'nLdSxgUE',
-      categoryName: 'Máy điện tử',
-      categoryStatus: 'Còn kinh doanh',
-      brandsList: [
-        { id: 1, name: 'Sony' },
-        { id: 2, name: 'Xiaomi' },
-      ],
-    },
-    {
-      categoryCode: 'ChWgfdpd',
-      categoryName: 'Tai nghe',
-      categoryStatus: 'Còn kinh doanh',
-      brandsList: [
-        { id: 1, name: 'Sony' },
-        { id: 2, name: 'Marshall' },
-        { id: 3, name: 'Yamaha' },
-      ],
-    },
-  ]);
+  const [categoriesList, setCategoriesList] = useState([]);
   const [openForm, setOpenForm] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [updatedCategory, setUpdatedCategory] = useState(null);
+  const [deletedCategory, setDeletedCategory] = useState(null);
 
-  const handleCreateNewCategory = (data) => {
-    setOpenForm(false);
-    setIsCreating(false);
-    toast.success('Add product to cart successfully 🥳🤩🤩🤩', {
-      autoClose: 3000,
-    });
+  const fetchAllCategory = async () => {
+    try {
+      const response = await categoryApi.getAll();
+      setCategoriesList(response);
+    } catch (error) {
+      // Throw error
+    }
   };
 
-  const handleUpdateCategory = (data) => {
+  useEffect(() => {
+    fetchAllCategory();
+  }, []);
+
+  const handleCreateCategory = async (data) => {
+    try {
+      await categoryApi.create(data);
+      // Đóng form và fetch lại dữ liệu
+      setOpenForm(false);
+      setIsCreating(false);
+      fetchAllCategory();
+      toast.success('Thêm mới loại sản phẩm thành công', {
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.error('Loại sản phẩm đã tồn tại');
+    }
+  };
+
+  const handleUpdateCategory = async (updatedCategory) => {
+    try {
+      await categoryApi.update(updatedCategory);
+      fetchAllCategory();
+      setOpenForm(false);
+      setIsUpdating(false);
+      toast.success('Cập nhật thành công', {
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.error('Cập nhật thất bại');
+    }
+  };
+
+  const handleCancelDeleteCategory = () => {
     setOpenForm(false);
-    setIsUpdating(false);
-    toast.success('Add product to cart successfully 🥳🤩🤩🤩', {
-      autoClose: 3000,
-    });
+    setIsDeleting(false);
+  };
+
+  const handleDeleteCategory = async (id) => {
+    // Xóa category
+    try {
+      await categoryApi.delete(id);
+      toast.success('Xóa sản phẩm thành công', {
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.success('Xóa sản phẩm thất bại', {
+        autoClose: 3000,
+      });
+    }
+    setOpenForm(false);
+    setIsDeleting(false);
+    fetchAllCategory();
   };
 
   return (
@@ -105,73 +95,72 @@ function CategoriesPage() {
           </button>
         </div>
         <div className="relative mt-5 overflow-x-auto">
-          <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
-            <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+          <table className="w-full text-center text-sm text-gray-500">
+            <thead className="bg-gray-50 text-xs uppercase text-gray-700">
               <tr>
-                <th scope="col" className="px-6 py-3">
-                  STT
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Mã loại sản phẩm
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Tên loại sản phẩm
-                </th>
-                <th scope="col" className="px-6 py-3">
+                <th className="px-6 py-3 text-center">STT</th>
+                <th className="w-1/5 px-6 py-3">Mã loại sản phẩm</th>
+                <th className="w-1/5 px-6 py-3">Tên loại sản phẩm</th>
+                <th className="w-1/5 px-6 py-3 text-center">
                   Các hãng sản phẩm
                 </th>
-                <th scope="col" className="px-6 py-3">
-                  Tình trạng
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Chỉnh sửa
-                </th>
+                <th className="w-1/5 px-6 py-3 text-center">Tình trạng</th>
+                <th className="px-6 py-3 text-center">Options</th>
               </tr>
             </thead>
             <tbody>
               {categoriesList.map((category, index) => {
                 return (
                   <tr
-                    key={category.categoryCode}
+                    key={category.sku}
                     className="border-b bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-800"
                   >
                     <td className="px-6 py-4">{index + 1}</td>
-                    <td className="px-6 py-4">{category.categoryCode}</td>
-                    <td
-                      scope="row"
-                      className="whitespace-nowrap px-6 py-4 dark:text-white"
-                    >
-                      {category.categoryName}
+                    <td className="w-1/5 px-6 py-4">{category.sku}</td>
+                    <td className="w-1/5 whitespace-nowrap px-6 py-4 dark:text-white">
+                      {category.name}
                     </td>
-                    <td className={`px-6 py-4`}>
-                      <ul>
-                        {category.brandsList?.map((brand) => (
+                    <td className={`w-1/5 px-6 py-4`}>
+                      <ul className="flex max-w-full flex-wrap gap-1">
+                        {category.brands?.map((brand) => (
                           <li
-                            key={`${brand.name}-${brand.key}`}
-                            className="mb-1"
+                            key={`${category.sku}-${brand}}`}
+                            className="h-fit w-fit max-w-40 break-words rounded bg-sky-500 px-4 py-1 text-white"
                           >
-                            - {brand.name}
+                            {brand}
                           </li>
                         ))}
                       </ul>
                     </td>
-                    <td className={`px-6 py-4`}>
+                    <td className={`w-1/5 px-6 py-4`}>
                       <p
-                        className={`${category.categoryStatus === 'Còn kinh doanh' ? 'bg-blue-500' : 'bg-red-500'} w-fit rounded px-3 py-1 text-white`}
+                        className={`${category.status === 1 ? 'bg-blue-500' : 'bg-red-500'} mx-auto w-fit rounded px-3 py-1 text-white`}
                       >
-                        {category.categoryStatus}
+                        {category.status === 1
+                          ? 'Còn kinh doanh'
+                          : 'Ngừng kinh doanh'}
                       </p>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="flex flex-col items-center gap-1 px-6 py-4">
                       <button
                         onClick={() => {
                           setOpenForm(true);
                           setIsUpdating(true);
                           setUpdatedCategory(category);
                         }}
-                        className="flex items-center gap-2 rounded bg-green-600 px-4 py-1 text-white hover:bg-green-500"
+                        className="flex w-fit items-center justify-center gap-2 rounded bg-green-600 px-4 py-1 text-white hover:bg-green-500"
                       >
                         Sửa <FaRegEdit />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOpenForm(true);
+                          setIsDeleting(true);
+                          setDeletedCategory(category);
+                        }}
+                        className="flex w-fit items-center justify-center gap-2 rounded bg-red-600 px-4 py-1 text-white hover:bg-red-500"
+                      >
+                        Xóa <MdDeleteOutline />
                       </button>
                     </td>
                   </tr>
@@ -188,6 +177,7 @@ function CategoriesPage() {
               setOpenForm(false);
               setIsCreating(false);
               setIsUpdating(false);
+              setIsDeleting(false);
             }}
             className="fixed inset-0 z-[9999] bg-black opacity-40"
           ></div>
@@ -197,6 +187,7 @@ function CategoriesPage() {
                 setOpenForm(false);
                 setIsCreating(false);
                 setIsUpdating(false);
+                setIsDeleting(false);
               }}
               className="absolute right-0 top-0 flex size-10 cursor-pointer items-center justify-center text-3xl"
             >
@@ -209,7 +200,14 @@ function CategoriesPage() {
               />
             )}
             {isCreating && (
-              <CreateCategoryForm onSubmit={handleCreateNewCategory} />
+              <CreateCategoryForm onSubmit={handleCreateCategory} />
+            )}
+            {isDeleting && (
+              <DeleteForm
+                category={deletedCategory}
+                onDelete={handleDeleteCategory}
+                onCancel={handleCancelDeleteCategory}
+              />
             )}
           </div>
         </>
