@@ -1,11 +1,4 @@
-function SelectField({
-  id,
-  label,
-  register,
-  errorMessage,
-  placeholder,
-  options = [],
-}) {
+function SelectField({ id, label, register, errorMessage, options = [] }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
       <label className="w-fit" htmlFor={id}>
@@ -17,7 +10,6 @@ function SelectField({
         name={id}
         className="border-gray w-full border border-solid px-3 py-2 text-sm outline-blue-500"
       >
-        <option value="">--{placeholder}--</option>
         {options.map((option, index) => (
           <option value={option} key={index}>
             {option}

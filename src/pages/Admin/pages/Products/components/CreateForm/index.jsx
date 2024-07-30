@@ -4,10 +4,7 @@ import { useForm } from 'react-hook-form';
 import InputField from '~/components/form-controls/InputField';
 import TextAreaField from '~/components/form-controls/TextAreaField';
 import { useEffect, useState } from 'react';
-import SelectField from '~/components/form-controls/SelectField';
-// import CheckboxField from '~/components/form-controls/CheckboxField';
 import { FaSpinner } from 'react-icons/fa6';
-// import productApi from '~/apis/productApi';
 import { toast } from 'react-toastify';
 import categoryApi from '~/apis/categoryApi';
 
@@ -53,9 +50,8 @@ const schema = yup.object().shape({
 });
 
 function CreateProductForm({ onSubmit }) {
-  const [productCategory, setProductCategory] = useState(null);
   const [categoriesList, setCategoriesList] = useState([]);
-  const [brandsListByCategory, setBrandsListByCategory] = useState([]);
+  const [brandsList, setBrandsList] = useState([]);
   useEffect(() => {
     (async () => {
       try {
@@ -64,26 +60,15 @@ function CreateProductForm({ onSubmit }) {
           (_category) => _category.status !== 0,
         );
         setCategoriesList(_categoryList);
-        setProductCategory(_categoryList[0].name);
       } catch (error) {
         toast.error('API Category bị lỗi');
       }
     })();
   }, []);
 
-  useEffect(() => {
-    const position = categoriesList.findIndex(
-      (category) => category.name === productCategory,
-    );
-    if (position !== -1) {
-      setBrandsListByCategory(categoriesList[position].brands);
-    }
-  }, [categoriesList, productCategory]);
-
   const {
     handleSubmit,
     register,
-    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
@@ -93,6 +78,16 @@ function CreateProductForm({ onSubmit }) {
     if (onSubmit) {
       await onSubmit(data);
     }
+  };
+
+  const handleGetBrandsList = (category) => {
+    const position = categoriesList.findIndex(
+      (_category) => _category.name === category,
+    );
+    if (position !== -1) {
+      return categoriesList[position].brands;
+    }
+    return [];
   };
 
   return (
@@ -110,33 +105,59 @@ function CreateProductForm({ onSubmit }) {
           />
         </div>
         <div className="flex basis-1/2 flex-col gap-1">
-          <SelectField
-            label="Loại sản phẩm"
-            placeholder="Chọn loại sản phẩm"
-            register={{
-              ...register('category', {
-                onChange: function (e) {
+          <div className="flex flex-col gap-1 text-sm">
+            <label className="w-fit" htmlFor="category">
+              Loại sản phẩm
+            </label>
+            <select
+              {...register('category', {
+                onChange: (e) => {
                   const newCategory = e.target.value;
-                  setProductCategory(newCategory);
+                  const newBrandList = handleGetBrandsList(newCategory);
+                  setBrandsList(newBrandList);
                 },
-              }),
-            }}
-            options={categoriesList.map((category) => category.name)}
-            id="category"
-            errorMessage={errors.category?.message}
-          />
+              })}
+              id="category"
+              className="border-gray w-full border border-solid px-3 py-2 text-sm outline-blue-500"
+            >
+              <option value="">---Chọn loại sản phẩm---</option>
+              {categoriesList.map((category) => (
+                <option value={category.name} key={category.sku}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            {errors.category?.message && (
+              <p className="px-1 text-sm text-red-500">
+                {errors.category?.message}
+              </p>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex gap-5 text-sm">
         <div className="flex basis-1/2 flex-col gap-1">
-          <SelectField
-            placeholder="Chọn thương hiệu sản phẩm"
-            label="Tên thương hiệu"
-            register={{ ...register('brand') }}
-            options={getValues('category') === '' ? [] : brandsListByCategory}
-            id="brand"
-            errorMessage={errors.brand?.message}
-          />
+          <div className="flex flex-col gap-1 text-sm">
+            <label className="w-fit" htmlFor="brand">
+              Thương hiệu sản phẩm
+            </label>
+            <select
+              {...register('brand')}
+              className="border-gray w-full border border-solid px-3 py-2 text-sm outline-blue-500"
+            >
+              <option value="">---Chọn thương hiệu sản phẩm---</option>
+              {brandsList.map((brand) => (
+                <option value={brand} key={brand}>
+                  {brand}
+                </option>
+              ))}
+            </select>
+            {errors.brand?.message && (
+              <p className="px-1 text-sm text-red-500">
+                {errors.brand?.message}
+              </p>
+            )}
+          </div>
         </div>
         <div className="flex basis-1/2 flex-col gap-1">
           <InputField
