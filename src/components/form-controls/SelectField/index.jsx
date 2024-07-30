@@ -1,7 +1,9 @@
 function SelectField({ id, label, register, errorMessage, options = [] }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
-      <label htmlFor={id}>{label}</label>
+      <label className="w-fit" htmlFor={id}>
+        {label}
+      </label>
       <select
         {...register}
         id={id}

@@ -1,11 +1,17 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import productApi from '~/apis/productApi';
+import { formatPrice } from '~/utils/formatCurrency';
 
-ProductDetail.propTypes = {};
-
-function ProductDetail(props) {
+function ProductDetail() {
   const { id } = useParams();
+  const [product, setProduct] = useState({});
+  useEffect(() => {
+    (async () => {
+      const response = await productApi.getProduct({ id });
+      setProduct(response);
+    })();
+  }, [id]);
 
   return (
     <div className="px-10 py-5">
@@ -22,52 +28,48 @@ function ProductDetail(props) {
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
             Tên sản phẩm
           </h3>
-          <p className="basis-4/5 px-4 py-2">
-            Áo Polo Ralph Lauren Thêu Ngựa Basic - Áo thun cổ bẻ Ralph Nam
-            Cotton Cá Sấu cao cấp
-          </p>
+          <p className="basis-4/5 px-4 py-2">{product.name}</p>
         </div>
 
         <div className="flex w-full border border-dotted border-black">
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
             Loại sản phẩm
           </h3>
-          <p className="basis-4/5 px-4 py-2">Áo Polo</p>
+          <p className="basis-4/5 px-4 py-2">{product.category}</p>
         </div>
         <div className="flex w-full border border-dotted border-black">
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
             Hãng sản phẩm
           </h3>
-          <p className="basis-4/5 px-4 py-2">Gucci</p>
+          <p className="basis-4/5 px-4 py-2">{product.brands}</p>
         </div>
         <div className="flex w-full border border-dotted border-black">
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
             Mô tả sản phẩm
           </h3>
-          <p className="basis-4/5 px-4 py-2">
-            It is a long established fact that a reader will be distracted by
-            the readable content of a page when looking at its layout. The point
-            of using Lorem Ipsum is that it has a more-or-less normal
-            distribution of letters, as opposed to using Content here, content
-            here, making it look like readable English. Many desktop publishing
-            packages and web page editors now use Lorem Ipsum as their default
-            model text, and a search for will uncover many web sites still in
-            their infancy. Various versions have evolved over the years,
-            sometimes by accident, sometimes on purpose (injected humour and the
-            like).
-          </p>
+          <p className="basis-4/5 px-4 py-2">{product.description}</p>
         </div>
         <div className="flex w-full border border-dotted border-black">
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
             Giá gốc
           </h3>
-          <p className="basis-4/5 px-4 py-2">5.000.000 VNĐ</p>
+          <p className="basis-4/5 px-4 py-2">
+            {formatPrice(product.originalPrice, 'VNĐ')}
+          </p>
+        </div>
+        <div className="flex w-full border border-dotted border-black">
+          <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
+            Giá hiện tại
+          </h3>
+          <p className="basis-4/5 px-4 py-2">
+            {formatPrice(product.finalPrice, 'VNĐ')}
+          </p>
         </div>
         <div className="flex w-full border border-dotted border-black">
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
             Khuyến mãi
           </h3>
-          <p className="basis-4/5 px-4 py-2">20%</p>
+          <p className="basis-4/5 px-4 py-2">{product.saleDiscountPercent}%</p>
         </div>
 
         <div className="flex w-full border border-dotted border-black">
@@ -80,13 +82,15 @@ function ProductDetail(props) {
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
             Lượt đánh giá
           </h3>
-          <p className="basis-4/5 px-4 py-2">0</p>
+          <p className="basis-4/5 px-4 py-2">{product.nrating} lượt đánh giá</p>
         </div>
         <div className="flex w-full border border-dotted border-black">
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
             Đánh giá
           </h3>
-          <p className="basis-4/5 px-4 py-2">0</p>
+          <p className="basis-4/5 px-4 py-2">
+            {Number(product.rating).toFixed(1)} sao
+          </p>
         </div>
         <div className="flex w-full border border-dotted border-black">
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">

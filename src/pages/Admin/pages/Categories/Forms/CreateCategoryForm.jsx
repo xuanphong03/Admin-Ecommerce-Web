@@ -1,20 +1,34 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaSpinner } from 'react-icons/fa6';
+import { toast } from 'react-toastify';
 import * as yup from 'yup';
 import InputField from '~/components/form-controls/InputField';
 
 const schema = yup.object().shape({
-  categoryCode: yup.string().required('Vui lòng nhập tên sản phẩm.'),
+  sku: yup
+    .string()
+    .matches(/^[A-Za-z0-9]*$/, 'Mã sản phẩm chỉ được chứa chữ cái và số.')
+    .max(10, 'SKU không được vượt quá 10 ký tự.')
+    .required('Vui lòng nhập mã loại sản phẩm.'),
   categoryName: yup.string().required('Vui lòng nhập mô tả sản phẩm.'),
-  categoryStatus: yup.string(),
+  brands: yup
+    .array()
+    .min(1, 'Vui lòng nhập ít nhất 1 hãng sản phẩm cho loại sản phẩm')
+    .required('Vui lòng nhập ít nhất 1 hãng sản phẩm cho loại sản phẩm'),
+  status: yup.number(),
 });
 
 function CreateCategoryForm({ onSubmit }) {
+  const [brandName, setBrandName] = useState('');
+  const [brandsList, setBrandsList] = useState([]);
   const {
     handleSubmit,
     register,
-    reset,
+    setValue,
+    clearErrors,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
@@ -22,7 +36,31 @@ function CreateCategoryForm({ onSubmit }) {
   const formSubmit = async (data) => {
     if (!onSubmit) return;
     await onSubmit(data);
-    reset();
+  };
+  const handleAddBrand = (e) => {
+    e.preventDefault();
+    if (!brandName.trim() || brandsList.includes(brandName)) {
+      brandsList.includes(brandName) &&
+        toast.error('Thương hiệu này đã tồn tại trong danh sách', {
+          autoClose: 3000,
+        });
+      return;
+    }
+
+    const newBrandsList = [...brandsList, brandName];
+    setBrandsList(newBrandsList);
+    setValue('brands', newBrandsList);
+    clearErrors('brands');
+    setBrandName('');
+  };
+
+  const handleRemoveBrand = (brand) => {
+    const newBrandsList = brandsList.filter((_brand) => _brand !== brand);
+    setBrandsList(newBrandsList);
+    setValue('brands', newBrandsList);
+    if (!newBrandsList.length) {
+      setError('brands');
+    }
   };
 
   return (
@@ -36,13 +74,13 @@ function CreateCategoryForm({ onSubmit }) {
       >
         <div className="flex flex-col gap-5">
           <InputField
-            id="categoryCode"
+            id="sku"
             label="Mã loại sản phẩm"
             autofocus={true}
             placeholder="Nhập mã loại sản phẩm"
             required={true}
-            errorMessage={errors.categoryCode?.message}
-            register={{ ...register('categoryCode') }}
+            errorMessage={errors.sku?.message}
+            register={{ ...register('sku') }}
           />
           <InputField
             id="categoryName"
@@ -52,22 +90,71 @@ function CreateCategoryForm({ onSubmit }) {
             errorMessage={errors.categoryName?.message}
             register={{ ...register('categoryName') }}
           />
+          <div className="flex flex-col gap-1 text-sm">
+            <label className="w-fit" htmlFor="brand">
+              Các thương hiệu kinh doanh<span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                placeholder="Nhập tên thương hiệu"
+                value={brandName}
+                onChange={(e) => {
+                  const newBrandName = e.target.value;
+                  setBrandName(newBrandName);
+                }}
+                type="text"
+                id="brand"
+                className={`border-gray w-full rounded border border-solid px-3 py-2 outline-blue-500`}
+              />
+              <button
+                onClick={handleAddBrand}
+                className="absolute right-0 top-1/2 h-full -translate-y-1/2 rounded-r bg-blue-500 px-2 text-white hover:bg-blue-400"
+              >
+                Thêm
+              </button>
+            </div>
+            {brandsList.length ? (
+              <ul className="mt-2 flex flex-wrap gap-4">
+                {brandsList.map((brand, index) => {
+                  return (
+                    <li
+                      key={index}
+                      className="relative h-fit w-fit max-w-40 break-words rounded bg-sky-500 px-4 py-1 text-white"
+                    >
+                      <span
+                        onClick={() => handleRemoveBrand(brand)}
+                        className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-500"
+                      >
+                        &times;
+                      </span>
+                      {brand}
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <></>
+            )}
+            {errors.brands?.message && (
+              <p className="px-1 text-red-500">{errors.brands?.message}</p>
+            )}
+          </div>
           <div>
-            <label htmlFor="categoryStatus">
+            <label htmlFor="status">
               Tình trạng<span className="text-red-500"> *</span>
             </label>
             <select
-              {...register('categoryStatus')}
+              {...register('status')}
               className="border-gray w-full border border-solid px-3 py-2 text-sm outline-blue-500"
-              id="categoryStatus"
+              id="status"
             >
-              <option value="Còn kinh doanh">Còn kinh doanh</option>
-              <option value="Ngừng kinh doanh">Ngừng kinh doanh</option>
+              <option value={1}>Còn kinh doanh</option>
+              <option value={0}>Ngừng kinh doanh</option>
             </select>
           </div>
         </div>
         <button
-          className={`${isSubmitting ? 'cursor-not-allowed bg-green-500' : 'cursor-pointer bg-green-600 hover:bg-green-500'} mt-10 rounded px-5 py-2 text-sm uppercase tracking-widest text-white`}
+          className={`${isSubmitting ? 'cursor-not-allowed bg-green-500' : 'cursor-pointer bg-green-600 hover:bg-green-500'} mt-10 rounded px-5 py-2 text-sm uppercase tracking-widest text-white outline-none`}
         >
           {isSubmitting ? (
             <p className="flex items-center justify-center gap-4">
