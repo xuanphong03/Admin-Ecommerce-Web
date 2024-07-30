@@ -10,9 +10,9 @@ import DeleteForm from '../components/DeleteForm';
 import { toast } from 'react-toastify';
 function ProductsList() {
   const [productsList, setProductsList] = useState([]);
-  const [isCreating, setIsCreating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deletedProduct, setDeletedProduct] = useState(null);
+
   const fetchProducts = async () => {
     try {
       const { data } = await productApi.getAllProducts();
@@ -26,24 +26,24 @@ function ProductsList() {
     fetchProducts();
   }, []);
 
-  const handleCreateProduct = async (data) => {
-    try {
-      await productApi.addNewProduct({
-        ...data,
-        saleDiscountPercent: 0,
-      });
-      // console.log(response);
-      await fetchProducts();
-      setIsCreating(false);
-      toast.success('Thêm sản phẩm thành công', {
-        autoClose: 3000,
-      });
-    } catch (error) {
-      toast.error('Thêm sản phẩm thất bại', {
-        autoClose: 3000,
-      });
-    }
-  };
+  // const handleCreateProduct = async (data) => {
+  //   try {
+  //     await productApi.addNewProduct({
+  //       ...data,
+  //       saleDiscountPercent: 0,
+  //     });
+  //     // console.log(response);
+  //     await fetchProducts();
+  //     setIsCreating(false);
+  //     toast.success('Thêm sản phẩm thành công', {
+  //       autoClose: 3000,
+  //     });
+  //   } catch (error) {
+  //     toast.error('Thêm sản phẩm thất bại', {
+  //       autoClose: 3000,
+  //     });
+  //   }
+  // };
   const handleDeleteProduct = async (id) => {
     try {
       await productApi.deleteProduct(id);
@@ -66,12 +66,11 @@ function ProductsList() {
     <>
       <section className="relative px-5 py-6">
         <div className="border-b border-solid border-black pb-5">
-          <button
-            className="rounded bg-green-600 px-5 py-2 text-sm text-[#f5f5f5]"
-            onClick={() => setIsCreating(true)}
-          >
-            Thêm sản phâm mới
-          </button>
+          <Link to="/product/create_product">
+            <button className="rounded bg-green-600 px-5 py-2 text-sm text-[#f5f5f5]">
+              Thêm sản phâm mới
+            </button>
+          </Link>
         </div>
         <div className="pt-5">
           <TableHeader />
@@ -86,7 +85,7 @@ function ProductsList() {
                     <p>{index + 1}</p>
                   </div>
                   <div className="flex basis-[10%] items-center justify-center text-center">
-                    <div className="size-16">
+                    <div className="flex size-16 items-center justify-center">
                       <img
                         className="max-w-full"
                         alt="product thumbnail"
@@ -137,38 +136,20 @@ function ProductsList() {
           </div>
         </div>
       </section>
-      {(isCreating || isDeleting) && (
+      {isDeleting && (
         <>
           <div
             onClick={() => {
-              setIsCreating(false);
               setIsDeleting(false);
             }}
             className="fixed inset-0 z-[9999] bg-black opacity-40"
           ></div>
-          <div className="absolute left-1/2 top-1/2 z-[99999] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded bg-white p-4">
-            {isCreating ? (
-              <div>
-                <h2 className="mb-10 text-center text-xl font-medium uppercase">
-                  Thêm sản phẩm
-                </h2>
-                <span
-                  onClick={() => {
-                    setIsCreating(false);
-                  }}
-                  className="absolute right-0 top-0 flex size-10 cursor-pointer items-center justify-center text-3xl"
-                >
-                  &times;
-                </span>
-                <CreateProductForm onSubmit={handleCreateProduct} />
-              </div>
-            ) : (
-              <DeleteForm
-                onSubmit={handleDeleteProduct}
-                onCancel={handleCancelDelete}
-                product={deletedProduct}
-              />
-            )}
+          <div className="absolute left-1/2 top-1/2 z-[99999] -translate-x-1/2 -translate-y-1/2 rounded bg-white p-4">
+            <DeleteForm
+              onSubmit={handleDeleteProduct}
+              onCancel={handleCancelDelete}
+              product={deletedProduct}
+            />
           </div>
         </>
       )}

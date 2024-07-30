@@ -7,7 +7,6 @@ function SelectField({ id, label, register, errorMessage, options = [] }) {
       <select
         {...register}
         id={id}
-        name={id}
         className="border-gray w-full border border-solid px-3 py-2 text-sm outline-blue-500"
       >
         {options.map((option, index) => (
