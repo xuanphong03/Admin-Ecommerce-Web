@@ -4,7 +4,6 @@ import { MdDeleteOutline } from 'react-icons/md';
 import { FaEye } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import TableHeader from '../components/TableHeader';
-import CreateProductForm from '../components/CreateForm';
 import productApi from '~/apis/productApi';
 import DeleteForm from '../components/DeleteForm';
 import { toast } from 'react-toastify';

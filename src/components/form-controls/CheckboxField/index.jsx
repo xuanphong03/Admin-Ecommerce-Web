@@ -6,7 +6,7 @@ CheckboxField.propTypes = {
   checkboxList: PropTypes.array,
 };
 
-function CheckboxField({ label, register, checkboxList = [] }) {
+function CheckboxField({ label, register, errorMessage, checkboxList = [] }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
       <label className="flex w-fit gap-2">
@@ -21,6 +21,9 @@ function CheckboxField({ label, register, checkboxList = [] }) {
           </label>
         ))}
       </div>
+      {errorMessage && (
+        <p className="px-1 text-sm text-red-500">{errorMessage}</p>
+      )}
     </div>
   );
 }
