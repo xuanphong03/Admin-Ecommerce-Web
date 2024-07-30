@@ -17,7 +17,6 @@ function TextAreaField({
         autoFocus={autofocus}
         {...register}
         id={id}
-        name={id}
         rows={4}
         className="border-gray w-full resize-none border border-solid px-3 py-2 outline-blue-500"
       ></textarea>

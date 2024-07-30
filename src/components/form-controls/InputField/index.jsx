@@ -16,13 +16,13 @@ function InputField({
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <input
+        autoComplete="off"
         readOnly={readOnly}
         placeholder={placeholder}
         autoFocus={autofocus}
         {...register}
         type={type}
         id={id}
-        name={id}
         step={step}
         className={`${readOnly ? 'bg-gray-200 outline-none' : 'outline-blue-500'} border-gray w-full rounded border border-solid px-3 py-2`}
       />

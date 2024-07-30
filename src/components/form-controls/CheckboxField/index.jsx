@@ -15,13 +15,8 @@ function CheckboxField({ label, register, checkboxList = [] }) {
       </label>
       <div className="flex flex-wrap gap-5">
         {checkboxList.map((item, index) => (
-          <label key={index} className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              {...register}
-              name="productSize"
-              value={item.value}
-            />
+          <label key={index} className="flex items-center gap-1">
+            <input type="checkbox" {...register} value={item.value} />
             {item.name}
           </label>
         ))}
