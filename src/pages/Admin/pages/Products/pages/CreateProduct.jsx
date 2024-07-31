@@ -7,10 +7,7 @@ function CreateProductPage() {
   const navigate = useNavigate();
   const handleCreateProduct = async (data) => {
     try {
-      await productApi.addNewProduct({
-        ...data,
-        saleDiscountPercent: 0,
-      });
+      await productApi.addNewProduct(data);
       // console.log(response);
       navigate('/product');
       toast.success('Thêm sản phẩm thành công', {
