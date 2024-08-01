@@ -21,42 +21,30 @@ function UpdateProductForm({ productDetail }) {
       {
         color: 'Đen',
         sizes: [
-          {
-            size: 'S',
-            stock: 5,
-          },
-          {
-            size: 'M',
-            stock: 10,
-          },
-          {
-            size: 'XL',
-            stock: 0,
-          },
+          { size: 'S', stock: 5 },
+          { size: 'M', stock: 10 },
+          { size: 'XL', stock: 0 },
         ],
       },
       {
         color: 'Trắng',
         sizes: [
-          {
-            size: 'S',
-            stock: 5,
-          },
-          {
-            size: 'M',
-            stock: 15,
-          },
-          {
-            size: 'XL',
-            stock: 20,
-          },
+          { size: 'S', stock: 5 },
+          { size: 'M', stock: 15 },
+          { size: 'XL', stock: 20 },
         ],
       },
     ],
+    totalQuantity: 55,
     originalPrice: 100,
+    rating: 0,
+    nrating: 0,
+    comments: [{}],
     saleDiscountPercent: 10,
     finalPrice: 90,
-    category: 'Category 2',
+    category: 'Quần short',
+    brand: 'Floral',
+    images: [],
   };
 
   const colours = fakeProductDetail.quantityDetails.map((item) => item.color);
@@ -83,6 +71,7 @@ function UpdateProductForm({ productDetail }) {
     handleSubmit,
     register,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
@@ -95,19 +84,39 @@ function UpdateProductForm({ productDetail }) {
       sizes,
     },
   });
+  const [brandsList, setBrandsList] = useState([]);
   const [categoriesList, setCategoriesList] = useState([]);
   const [productQuantities, setProductQuantities] = useState(initialQuantities);
-
   useEffect(() => {
     (async () => {
       try {
         const categoryApiResponse = await categoryApi.getAll();
-        setCategoriesList(() => categoryApiResponse.map((cat) => cat.name));
+        const _categoryList = categoryApiResponse.filter(
+          (_category) => _category.status !== 0,
+        );
+
+        setCategoriesList(_categoryList);
+
+        // Cập nhật danh sách brand
+        const position = _categoryList.findIndex(
+          (_category) => _category.name === fakeProductDetail.category,
+        );
+        if (position !== -1) {
+          setBrandsList(_categoryList[position].brands);
+        }
       } catch (error) {
         // log error message
       }
     })();
   }, []);
+
+  // Đặt giá trị mặc định cho category sau khi Categorieslist được tải xong
+  useEffect(() => {
+    if (categoriesList.length > 0) {
+      setValue('category', fakeProductDetail.category);
+      setValue('brand', fakeProductDetail.brand);
+    }
+  }, [categoriesList, setValue, fakeProductDetail.category]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const productColors = watch('colours') || [];
@@ -146,7 +155,7 @@ function UpdateProductForm({ productDetail }) {
       totalQuantity: calculatedTotalQuantity,
     };
 
-    console.log('Data tạo sản phẩm: ', productData);
+    console.log('Product data: ', productData);
   };
 
   const updateQuantity = (e, color, size) => {
@@ -163,6 +172,16 @@ function UpdateProductForm({ productDetail }) {
         return [...prev, { color, size, quantity: +newQuantity }];
       }
     });
+  };
+
+  const handleGetBrandsList = (category) => {
+    const position = categoriesList.findIndex(
+      (_category) => _category.name === category,
+    );
+    if (position !== -1) {
+      return categoriesList[position].brands;
+    }
+    return [];
   };
 
   return (
@@ -191,14 +210,56 @@ function UpdateProductForm({ productDetail }) {
           register={{ ...register('saleDiscountPercent') }}
           errorMessage={errors.saleDiscountPercent?.errorMessage}
         />
+        <div className="flex flex-col gap-1 text-sm">
+          <label className="w-fit" htmlFor="category">
+            Loại sản phẩm
+          </label>
+          <select
+            {...register('category', {
+              onChange: (e) => {
+                const newCategory = e.target.value;
+                const newBrandList = handleGetBrandsList(newCategory);
+                setBrandsList(newBrandList);
+              },
+            })}
+            id="category"
+            className="border-gray w-full border border-solid px-3 py-2 text-sm outline-blue-500"
+          >
+            {categoriesList.map((category) => (
+              <option value={category.name} key={category.sku}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          {errors.category?.message && (
+            <p className="px-1 text-sm text-red-500">
+              {errors.category?.message}
+            </p>
+          )}
+        </div>
 
-        <SelectField
-          id="productCategory"
-          label="Loại sản phẩm"
-          register={{ ...register('category') }}
-          errorMessage={errors.category?.errorMessage}
-          options={categoriesList}
-        />
+        <div className="flex basis-1/3 flex-col gap-1">
+          <div className="flex flex-col gap-1 text-sm">
+            <label className="w-fit" htmlFor="brand">
+              Thương hiệu sản phẩm
+            </label>
+            <select
+              {...register('brand')}
+              className="border-gray w-full border border-solid px-3 py-2 text-sm outline-blue-500"
+            >
+              {brandsList.map((brand) => (
+                <option value={brand} key={brand}>
+                  {brand}
+                </option>
+              ))}
+            </select>
+            {errors.brand?.message && (
+              <p className="px-1 text-sm text-red-500">
+                {errors.brand?.message}
+              </p>
+            )}
+          </div>
+        </div>
 
         <CheckboxField
           label="Kích thước"

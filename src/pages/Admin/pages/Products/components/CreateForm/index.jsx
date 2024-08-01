@@ -124,7 +124,7 @@ function CreateProductForm({ onSubmit }) {
       })),
     );
 
-    console.log('JSON Variant: ', JSON.stringify(variants));
+    // console.log('JSON Variant: ', JSON.stringify(variants));
 
     // Calculate total quantity
     const calculatedTotalQuantity = variants.reduce((total, variant) => {
@@ -137,7 +137,7 @@ function CreateProductForm({ onSubmit }) {
       variants,
       totalQuantity: calculatedTotalQuantity,
     };
-    console.log('JSON sản phẩm: ', JSON.stringify(calculatedTotalQuantity));
+    // console.log('JSON sản phẩm: ', JSON.stringify(calculatedTotalQuantity));
     console.log('Data tạo sản phẩm: ', productData);
     if (onSubmit) {
       await onSubmit(productData);
