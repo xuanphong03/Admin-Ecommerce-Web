@@ -56,6 +56,11 @@ const NavList = [
         name: 'Tin nhắn',
         path: '/support/message',
       },
+      {
+        id: '6.2',
+        name: 'Q&A',
+        path: '/support/qa',
+      },
     ],
   },
 ];
