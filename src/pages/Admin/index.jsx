@@ -7,6 +7,7 @@ import DashboardPage from './pages/Dashboard';
 import ProductsList from './pages/Products';
 import ProductPage from './pages/Products';
 import Chatroom from './pages/Chat/Chatroom';
+import QuestionAndAnswer from './pages/QA';
 
 AdminPage.propTypes = {};
 
@@ -38,6 +39,7 @@ function AdminPage() {
           <Route path="/product/*" element={<ProductPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
           <Route path="/support/message" element={<Chatroom />} />
+          <Route path="/support/qa" element={<QuestionAndAnswer />} />
         </Routes>
       </main>
     </div>

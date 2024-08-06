@@ -6,6 +6,8 @@ function TextAreaField({
   autofocus = false,
   required = false,
   placeholder = '',
+  rows = 5,
+  readOnly = false,
 }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
@@ -17,8 +19,9 @@ function TextAreaField({
         autoFocus={autofocus}
         {...register}
         id={id}
-        rows={4}
-        className="border-gray w-full resize-none border border-solid px-3 py-2 outline-blue-500"
+        rows={rows}
+        readOnly={readOnly}
+        className={`${readOnly ? 'bg-gray-200 outline-none' : 'outline-blue-500'} border-gray w-full resize-none rounded border border-solid px-3 py-2`}
       ></textarea>
       {errorMessage && (
         <p className="px-1 text-sm text-red-500">{errorMessage}</p>
