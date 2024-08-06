@@ -126,36 +126,45 @@ function UpdateProductForm({ productDetail }) {
   const handleFormSubmit = async (data) => {
     const { colours, sizes, ...productInfo } = data;
 
-    // Create variants
-    const variants = colours.flatMap((color) =>
-      sizes.map((size) => ({
-        color,
-        sizes: [
-          {
-            size,
-            quantity:
-              productQuantities.find(
-                (q) => q.color === color && q.size === size,
-              )?.quantity || 0,
-          },
-        ],
+    const quantityDetails = colours.map((color) => ({
+      color,
+      sizes: sizes.map((size) => ({
+        size,
+        quantity:
+          productQuantities.find((q) => q.color === color && q.size === size)
+            ?.quantity || 0,
       })),
+    }));
+
+    const formData = new FormData();
+    // for (let i = 0; i < productInfo.images.length; i++) {
+    //   formData.append('images', productInfo.images[i]);
+    // }
+    formData.append(
+      'productDtos',
+      JSON.stringify({
+        originalPrice: productInfo.originalPrice,
+        saleDiscountPercent: productInfo.saleDiscountPercent,
+        category: productInfo.category,
+        description: productInfo.description,
+        brand: productInfo.brand,
+        name: productInfo.name,
+        quantityDetails: quantityDetails,
+      }),
     );
 
-    // Calculate total quantity
-    const calculatedTotalQuantity = variants.reduce((total, variant) => {
-      return (
-        total + variant.sizes.reduce((sum, size) => sum + size.quantity, 0)
-      );
-    }, 0);
-
-    const productData = {
-      ...productInfo,
-      variants,
-      totalQuantity: calculatedTotalQuantity,
-    };
-
-    console.log('Product data: ', productData);
+    console.log({
+      originalPrice: productInfo.originalPrice,
+      saleDiscountPercent: productInfo.saleDiscountPercent,
+      category: productInfo.category,
+      description: productInfo.description,
+      brand: productInfo.brand,
+      name: productInfo.name,
+      quantityDetails: quantityDetails,
+    });
+    // if (onSubmit) {
+    //   await onSubmit(formData);
+    // }
   };
 
   const updateQuantity = (e, color, size) => {

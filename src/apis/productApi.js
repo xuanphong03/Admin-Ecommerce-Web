@@ -7,20 +7,18 @@ const productApi = {
     return axiosClient.post(url, data, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
-        // Authorization:
-        //   'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBtYWlsLmNvbSIsImlhdCI6MTcyMjEyNTMxOSwiZXhwIjoxNzIyMjExNzE5fQ.ib2HJqHulvlJSVRQ21z0rgOpurJNsY2IBjDGmh4XM_k',
         'Content-Type': 'multipart/form-data',
       },
     });
   },
   getAllProducts(params) {
-    const url = 'global/list-ob';
+    const url = '/global/products';
     return axiosClient.get(url, {
       params,
     });
   },
   getProduct(params) {
-    const url = `global/detail-ob`;
+    const url = `global/detail-product`;
     return axiosClient.get(url, { params });
   },
   deleteProduct(id) {

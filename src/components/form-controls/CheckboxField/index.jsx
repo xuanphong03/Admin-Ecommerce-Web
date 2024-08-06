@@ -9,10 +9,7 @@ CheckboxField.propTypes = {
 function CheckboxField({ label, register, errorMessage, checkboxList = [] }) {
   return (
     <div className="flex flex-col gap-1 text-sm">
-      <label className="flex w-fit gap-2">
-        {label}
-        <span className="text-sm font-light text-gray-500">(Tùy chọn)</span>
-      </label>
+      <label className="flex w-fit gap-2">{label}</label>
       <div className="flex flex-wrap gap-5">
         {checkboxList.map((item, index) => (
           <label key={index} className="flex items-center gap-1">
