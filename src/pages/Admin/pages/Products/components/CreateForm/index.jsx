@@ -10,7 +10,7 @@ import categoryApi from '~/apis/categoryApi';
 import CheckboxField from '~/components/form-controls/CheckboxField';
 import { COLORS, SIZES } from '~/constants/variants';
 import { LogarithmicScale } from 'chart.js';
-
+import StorageKeys from '~/constants/storage-key';
 const schema = yup.object().shape({
   name: yup.string().required('Vui lòng nhập tên sản phẩm.'),
   brand: yup.string().required('Vui lòng nhập tên thương hiệu.'),
@@ -108,42 +108,66 @@ function CreateProductForm({ onSubmit }) {
   const formSubmit = async (data) => {
     const { colours, sizes, ...productInfo } = data;
 
-    // Create variants
-    const variants = colours.flatMap((color) =>
-      sizes.map((size) => ({
-        color,
-        sizes: [
-          {
-            size,
-            quantity:
-              productQuantities.find(
-                (q) => q.color === color && q.size === size,
-              )?.quantity || 0,
-          },
-        ],
+    const quantityDetails = colours.map((color) => ({
+      color,
+      sizes: sizes.map((size) => ({
+        size,
+        quantity:
+          productQuantities.find((q) => q.color === color && q.size === size)
+            ?.quantity || 0,
       })),
+    }));
+
+    const formData = new FormData();
+    for (let i = 0; i < productInfo.images.length; i++) {
+      formData.append('images', productInfo.images[i]);
+    }
+    formData.append(
+      'productDtos',
+      JSON.stringify({
+        name: productInfo.name,
+        description: productInfo.description,
+        category: productInfo.category,
+        subCategory: productInfo.brand,
+        originalPrice: productInfo.originalPrice,
+        saleDiscountPercent: productInfo.saleDiscountPercent,
+        quantityDetails: quantityDetails,
+        imageMain: images[selectedImageIndex]?.name,
+        // createdByUserid: localStorage.getItem(StorageKeys.USER).getI,
+      }),
     );
-
-    console.log('JSON Variant: ', JSON.stringify(variants));
-
-    // Calculate total quantity
-    const calculatedTotalQuantity = variants.reduce((total, variant) => {
-      return (
-        total + variant.sizes.reduce((sum, size) => sum + size.quantity, 0)
-      );
-    }, 0);
-    const productData = {
-      ...productInfo,
-      variants,
-      totalQuantity: calculatedTotalQuantity,
-    };
-    console.log('JSON sản phẩm: ', JSON.stringify(calculatedTotalQuantity));
-    console.log('Data tạo sản phẩm: ', productData);
+    console.log(images[selectedImageIndex].name);
     if (onSubmit) {
-      await onSubmit(productData);
+      await onSubmit(formData);
     }
   };
+  // Thêm - Hương
+  const [images, setImages] = useState([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const handleFileChange = (event) => {
+    const files = Array.from(event.target.files);
+    const newImages = [];
 
+    files.forEach((file, index) => {
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        newImages.push({ src: e.target.result, name: file.name, index: index });
+        if (newImages.length === files.length) {
+          // Ensure all files are processed
+          setImages(newImages);
+        }
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
+  const handleImageClick = (imageIndex) => {
+    setSelectedImageIndex(imageIndex);
+    const selectedImage = images.find((image) => image.index === imageIndex);
+    console.log(`Selected image: ${selectedImage.name}, Index: ${imageIndex}`);
+  };
+  // -----------------------------------------
   const handleGetBrandsList = (category) => {
     const position = categoriesList.findIndex(
       (_category) => _category.name === category,
@@ -220,13 +244,13 @@ function CreateProductForm({ onSubmit }) {
         <div className="flex basis-1/3 flex-col gap-1">
           <div className="flex flex-col gap-1 text-sm">
             <label className="w-fit" htmlFor="brand">
-              Thương hiệu sản phẩm
+              Chi tiết loại sản phẩm
             </label>
             <select
               {...register('brand')}
               className="border-gray w-full border border-solid px-3 py-2 text-sm outline-blue-500"
             >
-              <option value="">---Chọn thương hiệu sản phẩm---</option>
+              <option value="">---Chọn Chi tiết loại sản phẩm---</option>
               {brandsList.map((brand) => (
                 <option value={brand} key={brand}>
                   {brand}
@@ -267,15 +291,42 @@ function CreateProductForm({ onSubmit }) {
             placeholder="Nhập phần trăm khuyến mãi"
           />
         </div>
+      </div>
+      <div className="mb-5 flex basis-1/3 flex-col gap-1 text-sm">
         <div className="flex basis-1/3 flex-col gap-1 text-sm">
-          <label htmlFor="images">Ảnh minh họa sản phẩm</label>
-          <input type="file" {...register('images')} multiple />
+          <label htmlFor="images">
+            Ảnh minh họa sản phẩm{' '}
+            {selectedImageIndex !== null && (
+              <p className="mt-2 text-sm">
+                Ảnh chính : {images[selectedImageIndex].name}, Index:{' '}
+                {selectedImageIndex}
+              </p>
+            )}
+          </label>
+          <input
+            type="file"
+            {...register('images')}
+            onChange={handleFileChange}
+            multiple
+          />
+          {/* <input type="file" id="images" onChange={handleFileChange} multiple /> */}
           {errors.images && (
             <p className="px-1 text-sm text-red-500">{errors.images.message}</p>
           )}
         </div>
+        <label htmlFor="images">Preview ảnh minh họa sản phẩm</label>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {images.map((image, index) => (
+            <img
+              key={index}
+              src={image.src}
+              alt={`Preview ${index}`}
+              className={`h-1/6 w-1/6 cursor-pointer object-cover ${selectedImageIndex === index ? 'border-2 border-blue-500' : ''}`}
+              onClick={() => handleImageClick(image.index)}
+            />
+          ))}
+        </div>
       </div>
-
       <div className="mb-5 flex gap-5 text-sm">
         <div className="flex basis-1/3 flex-col gap-1">
           <CheckboxField
