@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { FaSpinner } from 'react-icons/fa6';
 import { toast } from 'react-toastify';
 import categoryApi from '~/apis/categoryApi';
+import tradeMark from '~/apis/tradeMask';
 import CheckboxField from '~/components/form-controls/CheckboxField';
 import { COLORS, SIZES } from '~/constants/variants';
 import { LogarithmicScale } from 'chart.js';
@@ -55,6 +56,27 @@ function CreateProductForm({ onSubmit }) {
   const [categoriesList, setCategoriesList] = useState([]);
   const [brandsList, setBrandsList] = useState([]);
   const [productQuantities, setProductQuantities] = useState([]);
+  const [tradeMarks, setTradeMarks] = useState([]); // New state for TradeMark
+  const [selectedTradeMark, setSelectedTradeMark] = useState(null);
+  useEffect(() => {
+    (async () => {
+      try {
+        // Fetch categories
+        const categoryResponse = await categoryApi.getAll();
+        const _categoryList = categoryResponse.filter(
+          (_category) => _category.status !== 0,
+        );
+        setCategoriesList(_categoryList);
+
+        // Fetch tradeMarks
+        const tradeMarkResponse = await tradeMark.getAll();
+        setTradeMarks(tradeMarkResponse);
+        // setTradeMarks(tradeMarkResponse.map((tradeMark) => tradeMark.name)); // Extract names
+      } catch (error) {
+        toast.error('API bị lỗi');
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -129,6 +151,7 @@ function CreateProductForm({ onSubmit }) {
         description: productInfo.description,
         category: productInfo.category,
         subCategory: productInfo.brand,
+        tradeMask: productInfo.tradeMask,
         originalPrice: productInfo.originalPrice,
         saleDiscountPercent: productInfo.saleDiscountPercent,
         quantityDetails: quantityDetails,
@@ -265,7 +288,42 @@ function CreateProductForm({ onSubmit }) {
           </div>
         </div>
       </div>
-
+      <div className="mb-5 flex flex-col gap-1 text-sm">
+        <label htmlFor="tradeMask" className="mb-1 font-bold">
+          Chọn TradeMark
+        </label>
+        <select
+          {...register('tradeMask')}
+          className="block w-full rounded border border-gray-300 p-2"
+          onChange={(e) => {
+            const selectedId = e.target.value;
+            const selectedTradeMark = tradeMarks.find(
+              (tm) => tm.id.toString() === selectedId,
+            );
+            setSelectedTradeMark(selectedTradeMark);
+          }}
+        >
+          <option value="">Chọn TradeMark</option>
+          {tradeMarks.map((tradeMark) => (
+            <option key={tradeMark.id} value={tradeMark.id}>
+              {tradeMark.name}
+            </option>
+          ))}
+        </select>
+        {selectedTradeMark && (
+          <div className="mt-2 flex items-center gap-2">
+            <img
+              src={selectedTradeMark.image_url}
+              alt={selectedTradeMark.name}
+              className="h-16 w-16 object-cover"
+            />
+            <span>{selectedTradeMark.name}</span>
+          </div>
+        )}
+        {errors.tradeMask && (
+          <p className="text-xs text-red-500">{errors.tradeMask.message}</p>
+        )}
+      </div>
       <div className="mb-5 flex gap-5 text-sm">
         <div className="flex basis-1/3 flex-col gap-1">
           <InputField
@@ -385,7 +443,6 @@ function CreateProductForm({ onSubmit }) {
           />
         </div>
       </div>
-
       {productSizes.length > 0 && productColors.length > 0 && (
         <div className="flex flex-wrap">
           {productSizes.map((size) =>
@@ -419,7 +476,6 @@ function CreateProductForm({ onSubmit }) {
           )}
         </div>
       )}
-
       <div className="mt-5">
         <TextAreaField
           id="description"

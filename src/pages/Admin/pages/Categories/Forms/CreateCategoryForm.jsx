@@ -18,11 +18,13 @@ const schema = yup.object().shape({
     .min(1, 'Vui lòng nhập ít nhất 1 hãng sản phẩm cho loại sản phẩm')
     .required('Vui lòng nhập ít nhất 1 hãng sản phẩm cho loại sản phẩm'),
   status: yup.number(),
+  image_url: yup.string().url('Vui lòng nhập URL hợp lệ của ảnh minh họa.'),
 });
 
 function CreateCategoryForm({ onSubmit }) {
   const [brandName, setBrandName] = useState('');
   const [brandsList, setBrandsList] = useState([]);
+  const [imageUrl, setImageUrl] = useState('');
   const {
     handleSubmit,
     register,
@@ -33,10 +35,12 @@ function CreateCategoryForm({ onSubmit }) {
   } = useForm({
     resolver: yupResolver(schema),
   });
+
   const formSubmit = async (data) => {
     if (!onSubmit) return;
     await onSubmit(data);
   };
+
   const handleAddBrand = (e) => {
     e.preventDefault();
     if (!brandName.trim() || brandsList.includes(brandName)) {
@@ -72,7 +76,7 @@ function CreateCategoryForm({ onSubmit }) {
         onSubmit={handleSubmit(formSubmit)}
         className="flex flex-col justify-between"
       >
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-2">
           <InputField
             id="sku"
             label="Mã loại sản phẩm"
@@ -90,13 +94,33 @@ function CreateCategoryForm({ onSubmit }) {
             errorMessage={errors.categoryName?.message}
             register={{ ...register('categoryName') }}
           />
+          <InputField
+            id="image_url"
+            label="Ảnh Minh họa"
+            placeholder="Nhập Url của ảnh minh họa"
+            required={true}
+            errorMessage={errors.image_url?.message}
+            register={{
+              ...register('image_url'),
+              onChange: (e) => setImageUrl(e.target.value),
+            }}
+          />
+          {imageUrl && (
+            <div className="mt-2">
+              <img
+                src={imageUrl}
+                alt="Ảnh minh họa"
+                className="max-h-80 w-full object-contain"
+              />
+            </div>
+          )}
           <div className="flex flex-col gap-1 text-sm">
             <label className="w-fit" htmlFor="brand">
-              Các thương hiệu kinh doanh<span className="text-red-500">*</span>
+              Chi tiết loại sản phẩm<span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <input
-                placeholder="Nhập tên thương hiệu"
+                placeholder="Nhập Tên Chi tiết loại sản phẩm"
                 value={brandName}
                 onChange={(e) => {
                   const newBrandName = e.target.value;
@@ -114,7 +138,7 @@ function CreateCategoryForm({ onSubmit }) {
               </button>
             </div>
             {brandsList.length ? (
-              <ul className="mt-2 flex flex-wrap gap-4">
+              <ul className="mt-2 flex flex-wrap gap-2">
                 {brandsList.map((brand, index) => {
                   return (
                     <li
@@ -154,7 +178,11 @@ function CreateCategoryForm({ onSubmit }) {
           </div>
         </div>
         <button
-          className={`${isSubmitting ? 'cursor-not-allowed bg-green-500' : 'cursor-pointer bg-green-600 hover:bg-green-500'} mt-10 rounded px-5 py-2 text-sm uppercase tracking-widest text-white outline-none`}
+          className={`${
+            isSubmitting
+              ? 'cursor-not-allowed bg-green-500'
+              : 'cursor-pointer bg-green-600 hover:bg-green-500'
+          } mt-10 rounded px-5 py-2 text-sm uppercase tracking-widest text-white outline-none`}
         >
           {isSubmitting ? (
             <p className="flex items-center justify-center gap-4">
