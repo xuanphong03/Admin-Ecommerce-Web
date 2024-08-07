@@ -89,8 +89,9 @@ function ProductsList() {
                         className="max-w-full"
                         alt="product thumbnail"
                         src={
-                          productItem.images.length &&
-                          productItem.images[0].img_url
+                          (productItem.images.length &&
+                            productItem.images[0].img_url) ||
+                          productItem.imageMain
                         }
                       />
                     </div>

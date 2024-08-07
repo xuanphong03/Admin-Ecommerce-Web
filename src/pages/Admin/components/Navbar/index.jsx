@@ -18,15 +18,20 @@ const NavList = [
   },
   {
     id: '4',
+    name: 'Thương hiệu Hợp Tác',
+    path: '/tradeMask',
+  },
+  {
+    id: '5',
     name: 'Sản phẩm',
     children: [
       {
-        id: '4.1',
+        id: '5.1',
         path: '/product',
         name: 'Danh sách sản phẩm',
       },
       {
-        id: '4.2',
+        id: '5.2',
         path: '/product/create_product',
         name: 'Thêm sản phẩm',
       },
@@ -34,30 +39,30 @@ const NavList = [
   },
 
   {
-    id: '5',
+    id: '6',
     name: 'Đơn hàng',
     children: [
-      { id: '5.1', path: '/orders/', name: 'Danh sách đơn hàng' },
+      { id: '6.1', path: '/orders/', name: 'Danh sách đơn hàng' },
       {
-        id: '5.2',
+        id: '6.2',
         path: '/orders/received',
         name: 'Đơn hàng đã giao',
       },
-      { id: '5.3', path: '/orders/delivering', name: 'Đơn hàng đang giao' },
-      { id: '5.4', path: '/orders/cancelled', name: 'Đơn hàng đã hủy' },
+      { id: '6.3', path: '/orders/delivering', name: 'Đơn hàng đang giao' },
+      { id: '6.4', path: '/orders/cancelled', name: 'Đơn hàng đã hủy' },
     ],
   },
   {
-    id: '6',
+    id: '7',
     name: 'Hỗ trợ khách hàng',
     children: [
       {
-        id: '6.1',
+        id: '7.1',
         name: 'Tin nhắn',
         path: '/support/message',
       },
       {
-        id: '6.2',
+        id: '7.2',
         name: 'Q&A',
         path: '/support/qa',
       },

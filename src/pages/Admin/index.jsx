@@ -3,6 +3,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import { logout } from '../Auth/userSlice';
 import Navbar from './components/Navbar';
 import CategoriesPage from './pages/Categories';
+import TradeMaskPage from './pages/TradeMask';
 import DashboardPage from './pages/Dashboard';
 import ProductsList from './pages/Products';
 import ProductPage from './pages/Products';
@@ -38,6 +39,7 @@ function AdminPage() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/product/*" element={<ProductPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/tradeMask" element={<TradeMaskPage />} />
           <Route path="/support/message" element={<Chatroom />} />
           <Route path="/support/qa" element={<QuestionAndAnswer />} />
         </Routes>
