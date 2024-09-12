@@ -23,15 +23,25 @@ const NavList = [
   },
   {
     id: '5',
+    name: 'Phong cách',
+    path: '/style',
+  },
+  {
+    id: '6',
+    name: 'Chất liệu',
+    path: '/material',
+  },
+  {
+    id: '7',
     name: 'Sản phẩm',
     children: [
       {
-        id: '5.1',
+        id: '7.1',
         path: '/product',
         name: 'Danh sách sản phẩm',
       },
       {
-        id: '5.2',
+        id: '7.2',
         path: '/product/create_product',
         name: 'Thêm sản phẩm',
       },
@@ -39,30 +49,30 @@ const NavList = [
   },
 
   {
-    id: '6',
+    id: '8',
     name: 'Đơn hàng',
     children: [
-      { id: '6.1', path: '/orders/', name: 'Danh sách đơn hàng' },
+      { id: '8.1', path: '/orders/', name: 'Danh sách đơn hàng' },
       {
-        id: '6.2',
+        id: '8.2',
         path: '/orders/received',
         name: 'Đơn hàng đã giao',
       },
-      { id: '6.3', path: '/orders/delivering', name: 'Đơn hàng đang giao' },
-      { id: '6.4', path: '/orders/cancelled', name: 'Đơn hàng đã hủy' },
+      { id: '8.3', path: '/orders/delivering', name: 'Đơn hàng đang giao' },
+      { id: '8.4', path: '/orders/cancelled', name: 'Đơn hàng đã hủy' },
     ],
   },
   {
-    id: '7',
+    id: '9',
     name: 'Hỗ trợ khách hàng',
     children: [
       {
-        id: '7.1',
+        id: '9.1',
         name: 'Tin nhắn',
         path: '/support/message',
       },
       {
-        id: '7.2',
+        id: '9.2',
         name: 'Q&A',
         path: '/support/qa',
       },

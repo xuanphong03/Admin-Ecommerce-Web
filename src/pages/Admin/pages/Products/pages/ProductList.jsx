@@ -1,21 +1,46 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { formatPrice } from '~/utils/formatCurrency';
 import { MdDeleteOutline } from 'react-icons/md';
 import { FaEye } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import TableHeader from '../components/TableHeader';
 import productApi from '~/apis/productApi';
 import DeleteForm from '../components/DeleteForm';
 import { toast } from 'react-toastify';
+import { Pagination } from '@mui/material';
+import queryString from 'query-string';
 function ProductsList() {
+  const navigate = useNavigate();
   const [productsList, setProductsList] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deletedProduct, setDeletedProduct] = useState(null);
+  const queryParams = useMemo(() => {
+    const params = queryString.parse(location.search);
+
+    return {
+      ...params,
+      _page: Number.parseInt(params._page) || 1,
+      _limit: Number.parseInt(params._limit) || 20,
+      _sort: params._sort || 'ASC',
+    };
+  }, [location.search]);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+  });
 
   const fetchProducts = async () => {
     try {
-      const { data } = await productApi.getAllProducts();
+      const { data, pagination } = await productApi.getAllProducts(queryParams);
+      console.log(data);
+
       setProductsList(data);
+      setPagination((prev) => ({
+        ...prev,
+        total: pagination._total,
+        page: queryParams._page || 1,
+      }));
     } catch (error) {
       // console.error(error);
     }
@@ -23,26 +48,8 @@ function ProductsList() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [queryParams]);
 
-  // const handleCreateProduct = async (data) => {
-  //   try {
-  //     await productApi.addNewProduct({
-  //       ...data,
-  //       saleDiscountPercent: 0,
-  //     });
-  //     // console.log(response);
-  //     await fetchProducts();
-  //     setIsCreating(false);
-  //     toast.success('Thêm sản phẩm thành công', {
-  //       autoClose: 3000,
-  //     });
-  //   } catch (error) {
-  //     toast.error('Thêm sản phẩm thất bại', {
-  //       autoClose: 3000,
-  //     });
-  //   }
-  // };
   const handleDeleteProduct = async (id) => {
     try {
       await productApi.deleteProduct(id);
@@ -59,6 +66,19 @@ function ProductsList() {
   };
   const handleCancelDelete = () => {
     setIsDeleting(false);
+  };
+
+  const handlePageChange = (event, page) => {
+    const filters = {
+      ...queryParams,
+      _page: page,
+    };
+    setPagination((prev) => ({ ...prev, page }));
+    navigate(`/product?${queryString.stringify(filters)}`);
+    window.scrollTo({
+      top: 0,
+      left: 0,
+    });
   };
 
   return (
@@ -133,6 +153,16 @@ function ProductsList() {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="m-10 flex justify-center">
+            <Pagination
+              count={Math.ceil(pagination.total / pagination.limit)}
+              page={pagination.page}
+              onChange={handlePageChange}
+              variant="outlined"
+              shape="rounded"
+              color="primary"
+            />
           </div>
         </div>
       </section>

@@ -12,9 +12,18 @@ const productApi = {
     });
   },
   getAllProducts(params) {
-    const url = '/global/products';
+    const url = 'global/products';
     return axiosClient.get(url, {
       params,
+    });
+  },
+  updateProduct(data) {
+    const url = '/admin/update-product';
+    return axiosClient.post(url, data, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
+        'Content-Type': 'multipart/form-data',
+      },
     });
   },
   getProduct(params) {
