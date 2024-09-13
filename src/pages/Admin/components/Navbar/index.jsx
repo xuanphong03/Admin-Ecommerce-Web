@@ -7,11 +7,6 @@ const NavList = [
     path: '/',
   },
   {
-    id: '2',
-    name: 'Kho hàng',
-    path: '/warehouse',
-  },
-  {
     id: '3',
     name: 'Loại sản phẩm',
     path: '/categories',
@@ -82,7 +77,7 @@ const NavList = [
 
 function Navbar() {
   return (
-    <nav className="my-8">
+    <nav>
       <ul className="text-sm">
         {NavList.map((navItem) => {
           if (navItem.children) {
