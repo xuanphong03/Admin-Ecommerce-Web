@@ -3,7 +3,7 @@ import axiosClient from './axiosClient';
 
 const categoryApi = {
   getAll() {
-    const path = '/admin/categorys';
+    const path = '/global/categories';
     return axiosClient.get(path, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,

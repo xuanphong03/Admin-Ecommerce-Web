@@ -20,21 +20,19 @@ function ProductsList() {
     return {
       ...params,
       _page: Number.parseInt(params._page) || 1,
-      _limit: Number.parseInt(params._limit) || 20,
+      _limit: Number.parseInt(params._limit) || 10,
       _sort: params._sort || 'ASC',
     };
   }, [location.search]);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 20,
+    limit: 10,
     total: 0,
   });
 
   const fetchProducts = async () => {
     try {
       const { data, pagination } = await productApi.getAllProducts(queryParams);
-      console.log(data);
-
       setProductsList(data);
       setPagination((prev) => ({
         ...prev,
