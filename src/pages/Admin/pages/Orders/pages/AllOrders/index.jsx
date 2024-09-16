@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { MdDeleteOutline } from 'react-icons/md';
-import { FaEdit, FaEye } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
+import { FaEye } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { formatPrice } from '~/utils/formatCurrency';
 import { v4 as uuidv4 } from 'uuid';
@@ -135,7 +133,7 @@ function AllOrdersPage(props) {
                 <div className="flex basis-[5%] items-center justify-center text-center">
                   {index + 1}
                 </div>
-                <div className="flex basis-[10%] items-center justify-center text-center">
+                <div className="flex basis-[10%] items-center justify-center">
                   {orderCode}
                 </div>
                 <div className="flex basis-[15%] items-center justify-center">
