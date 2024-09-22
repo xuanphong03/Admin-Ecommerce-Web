@@ -3,7 +3,7 @@ import axiosClient from './axiosClient';
 
 const style = {
   getAll() {
-    const path = '/admin/styles';
+    const path = '/global/styles';
     return axiosClient.get(path, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,

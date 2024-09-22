@@ -3,7 +3,7 @@ import axiosClient from './axiosClient';
 
 const material = {
   getAll() {
-    const path = '/admin/material';
+    const path = '/global/material';
     return axiosClient.get(path, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,

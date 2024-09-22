@@ -965,7 +965,7 @@ function CreateProductForm({ onSubmit }) {
             register={{ ...register('saleDiscountPercent') }}
             required={true}
             type="number"
-            step={1}
+            step={10}
             placeholder="Nhập phần trăm khuyến mãi"
           />
         </div>
@@ -1088,6 +1088,7 @@ function CreateProductForm({ onSubmit }) {
                   } // Default value is 0
                   placeholder="Nhập số lượng sản phẩm"
                   min={0}
+                  step={100}
                   type="number"
                   className={`border-gray w-full rounded border border-solid px-3 py-2 outline-blue-500`}
                 />

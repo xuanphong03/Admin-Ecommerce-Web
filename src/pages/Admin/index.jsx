@@ -5,7 +5,6 @@ import Navbar from './components/Navbar';
 import CategoriesPage from './pages/Categories';
 import TradeMaskPage from './pages/TradeMask';
 import DashboardPage from './pages/Dashboard';
-import ProductsList from './pages/Products';
 import ProductPage from './pages/Products';
 import Chatroom from './pages/Chat/Chatroom';
 import QuestionAndAnswer from './pages/QA';
@@ -42,10 +41,10 @@ function AdminPage() {
           <Route path="/style" element={<StylePage />} />
           <Route path="/orders/*" element={<OrdersPage />} />
           <Route path="/material" element={<MaterialPage />} />
-          <Route path="/support/message" element={<Chatroom />} />
           <Route path="/support/qa" element={<QuestionAndAnswer />} />
         </Routes>
       </main>
+      <Chatroom />
     </div>
   );
 }
