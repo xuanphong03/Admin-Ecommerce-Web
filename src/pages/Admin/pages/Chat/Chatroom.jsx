@@ -1,5 +1,5 @@
 import './init';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { IoChatbubbleEllipsesOutline } from 'react-icons/io5';
 import {
   IoIosArrowDown,
@@ -12,9 +12,11 @@ import {
   IoMdHappy,
   IoLogoPinterest,
   IoIosPaperPlane,
+  IoMdTrash,
+  IoMdCheckmarkCircle,
+  IoMdCloseCircle,
 } from 'react-icons/io';
 import { v4 as uuidv4 } from 'uuid';
-// import './ChatBox.css';
 import EmojiPicker from 'emoji-picker-react';
 import { client, over } from 'stompjs';
 import SockJS from 'sockjs-client';
@@ -30,6 +32,9 @@ let stompClient = null;
 const SOCKET_URL = 'http://localhost:8080/ws';
 let save_ReiverID = null;
 let save_Img = null;
+let unreadMessages = 0;
+let save_Role = null;
+let save_ReiverID_unreadMessages = '';
 function Chatroom(props) {
   const token = localStorage.getItem(StorageKeys.TOKEN) || '';
   const user = JSON.parse(localStorage.getItem(StorageKeys.USER)) || {};
@@ -44,8 +49,6 @@ function Chatroom(props) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const handleEmojiClick = (event, emojiObject) => {
     setMessage((prevMessage) => prevMessage + event.emoji);
-    // setOptionalListVisible((prev) => !prev);
-    // setShowEmojiPicker(false);
   };
   //--------------------------------------------------------------------------------------
   const isImageUrl = (url) => {
@@ -266,6 +269,59 @@ function Chatroom(props) {
     }
   }, [chatting]);
   //--------------------------------------------------------------------------------------
+
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editContent, setEditContent] = useState('');
+  // const messagesEndRef = useRef(null);
+
+  const handleEditClick = (messageItem) => {
+    setEditingMessageId(messageItem.id);
+    setEditContent(messageItem.content);
+  };
+
+  const handleDeleteClick = (messageItem) => {
+    const isConfirmed = window.confirm(
+      'Are you sure you want to delete this message?',
+    );
+    if (isConfirmed) {
+      const chatMessage = {
+        action: 'DELETE',
+        id: messageItem.id,
+        senderId: messageItem.senderId,
+        recipientId: messageItem.recipientId,
+      };
+
+      stompClient.send('/app/chat', {}, JSON.stringify(chatMessage));
+
+      console.log('Message deletion initiated.');
+    } else {
+      console.log('Message deletion canceled.');
+    }
+    setEditingMessageId(null);
+    fetchAndDisplayUserChat();
+  };
+
+  const handleConfirmClick = (messageItem) => {
+    const chatMessage = {
+      action: 'UPDATE',
+      id: messageItem.id,
+      senderId: messageItem.senderId,
+      recipientId: messageItem.recipientId,
+      content: editContent.trim(), // Gửi nội dung tin nhắn đã chỉnh sửa
+    };
+
+    stompClient.send('/app/chat', {}, JSON.stringify(chatMessage));
+
+    console.log('Message update initiated.');
+    setEditingMessageId(null);
+    fetchAndDisplayUserChat();
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null);
+  };
+
+  //--------------------------------------------------------------------------------------
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({});
   };
@@ -292,6 +348,7 @@ function Chatroom(props) {
         fullName: name,
         img_url: userImgUrl,
         status: 'ONLINE',
+        role: user.role,
       }),
     );
     if (
@@ -315,6 +372,7 @@ function Chatroom(props) {
           fullName: name,
           img_url: userImgUrl,
           status: 'OFFLINE',
+          role: user.role,
         }),
       );
       stompClient.disconnect();
@@ -325,7 +383,7 @@ function Chatroom(props) {
   };
 
   const findAndDisplayConnectedUsers = async () => {
-    const connectedUsersResponse = await fetch('http://localhost:8080/users', {
+    const connectedUsersResponse = await fetch('http://localhost:8080/admin', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -361,34 +419,73 @@ function Chatroom(props) {
       ).then((response) => response.json());
       setMessages(userChatResponse);
     }
-    // console.log(userChatResponse);
   };
 
   const onError = (err) => {
     // console.log('Lỗi', err);
   };
-
   const onMessageReceived = async (payload) => {
     await findAndDisplayConnectedUsers();
     const payloadData = JSON.parse(payload.body);
-    console.log(payloadData);
-
     if (
       name === payloadData.recipientId &&
-      save_ReiverID === payloadData.senderId
+      save_ReiverID === payloadData.senderId &&
+      payloadData.action !== 'UPDATE' &&
+      payloadData.action !== 'DELETE'
     ) {
       setMessages((prev) => [...prev, payloadData]);
-      // console.log(save_Img);
+    } else if (
+      name === payloadData.recipientId &&
+      save_ReiverID === payloadData.senderId &&
+      (payloadData.action === 'UPDATE' || payloadData.action === 'DELETE')
+    ) {
+      const userChatResponse = await fetch(
+        `http://localhost:8080/api/v1/chat-box/messages/${save_ReiverID}/${name}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      ).then((response) => response.json());
+      setMessages(userChatResponse);
     }
-    if (name === payloadData.senderId) {
+    if (
+      name === payloadData.senderId &&
+      save_ReiverID === payloadData.recipientId &&
+      payloadData.action !== 'UPDATE' &&
+      payloadData.action !== 'DELETE'
+    ) {
       setMessages((prev) => [...prev, payloadData]);
-      // console.log(save_Img);
+    } else if (
+      name === payloadData.recipientId &&
+      save_ReiverID === payloadData.senderId &&
+      (payloadData.action === 'UPDATE' || payloadData.action === 'DELETE')
+    ) {
+      const userChatResponse = await fetch(
+        `http://localhost:8080/api/v1/chat-box/messages/${name}/${save_ReiverID}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      ).then((response) => response.json());
+      setMessages(userChatResponse);
     }
-    // Dành cho trường hợp tự load đến tin nhắn =)) trông hơi đần tí
-    // if (payloadData.senderId !== RECEIVER.admin) {
-    //   setReceiverId(payloadData.senderId);
-    //   setMessages((prev) => [...prev, payloadData]);
-    // }
+    if (
+      name === payloadData.recipientId &&
+      save_ReiverID !== payloadData.senderId
+    ) {
+      unreadMessages = unreadMessages + 1;
+      save_ReiverID_unreadMessages = payloadData.senderId;
+      console.log(save_ReiverID_unreadMessages);
+    } else if (save_ReiverID_unreadMessages !== null) {
+      // eslint-disable-next-line no-self-assign
+      unreadMessages = unreadMessages;
+    }
+    if (save_ReiverID === payloadData.senderId) {
+      unreadMessages = 0;
+      save_ReiverID_unreadMessages = '';
+    }
   };
   const handleSendMessage = (e) => {
     if (e) {
@@ -397,6 +494,7 @@ function Chatroom(props) {
     if (!message.trim() || !stompClient) return;
 
     const chatMessage = {
+      action: 'SEND',
       senderId: name,
       senderImage: userImgUrl,
       recipientId: save_ReiverID,
@@ -424,7 +522,7 @@ function Chatroom(props) {
   }, [receiverId]);
 
   return (
-    <div className="fixed bottom-5 right-5">
+    <div className="fixed bottom-5 right-5 z-[9999]">
       <div
         onClick={() => {
           setChatting(true);
@@ -435,17 +533,17 @@ function Chatroom(props) {
         <IoChatbubbleEllipsesOutline className="text-xl" /> Nhắn tin
       </div>
       <div
-        className={`${chatting ? 'h-[850px] w-[1600px]' : 'h-0 w-0'} chatBox absolute bottom-0 right-0 overflow-hidden rounded bg-white text-black`}
+        className={`${chatting ? 'h-[550px] w-[900px]' : 'h-0 w-0'} chatBox absolute bottom-0 right-0 rounded border-2 border-solid border-gray-200 bg-white text-black`}
       >
-        <div className="border-gray flex h-16 items-center justify-between border-b border-solid px-5 py-2">
-          <h2 className="ml-1 text-xl font-semibold tracking-wide text-stone-600">
+        <div className="border-gray flex h-12 items-center justify-between border-b border-solid px-5 py-2">
+          <h2 className="ml-1 text-lg font-semibold tracking-wide text-stone-600">
             Nhắn tin
           </h2>
           <div className="flex space-x-2">
             <button
               type="button"
               id="backhome"
-              className="flex size-8 items-center justify-center rounded border border-solid border-black text-base text-xs tracking-wide"
+              className="flex size-8 items-center justify-center rounded border border-solid border-black text-xs tracking-wide"
               onClick={backhome}
               title="Back To Home"
             >
@@ -454,7 +552,7 @@ function Chatroom(props) {
             <button
               type="button"
               id="contactUs"
-              className="flex size-8 items-center justify-center rounded border border-solid border-black text-base text-xs tracking-wide"
+              className="flex size-8 items-center justify-center rounded border border-solid border-black text-xs tracking-wide"
               onClick={contactUs}
               title="Contact Us"
             >
@@ -463,7 +561,7 @@ function Chatroom(props) {
             <button
               type="buttonhelp"
               id="guide"
-              className="flex size-8 items-center justify-center rounded border border-solid border-black text-base text-xs tracking-wide"
+              className="flex size-8 items-center justify-center rounded border border-solid border-black text-xs tracking-wide"
               onClick={guide}
               title="Guide Chat Bot"
             >
@@ -472,7 +570,7 @@ function Chatroom(props) {
             <button
               type="buttonhelp"
               id="IoIosList"
-              className="flex size-8 items-center justify-center rounded border border-solid border-black text-base text-xs tracking-wide"
+              className="flex size-8 items-center justify-center rounded border border-solid border-black text-xs tracking-wide"
               onClick={guide}
               title="IoIosList"
             >
@@ -491,34 +589,52 @@ function Chatroom(props) {
         </div>
 
         <div className="flex h-[calc(100%-48px)]">
-          <div className="border-gray w-[400px] border-r border-solid">
+          <div className="border-gray w-[320px] border-r border-solid">
             {receiversList.map((receiver) => (
               <article
                 key={receiver.id}
                 onClick={() => {
                   setReceiverId(receiver.name);
+                  if (save_ReiverID === receiver.name) {
+                    fetchAndDisplayUserChat();
+                  }
                   save_ReiverID = receiver.name;
                   save_Img = receiver.img_url;
+                  save_Role = receiver.role;
+                  if (save_ReiverID === save_ReiverID_unreadMessages) {
+                    unreadMessages = 0;
+                    save_ReiverID_unreadMessages = '';
+                  }
                 }}
-                className={`${save_ReiverID === receiver.name ? 'bg-gray-200' : 'bg-white hover:bg-gray-100'} flex cursor-pointer gap-2 px-5 py-2 text-[#2c2c2c] transition-all`}
+                className={`${save_ReiverID === receiver.name ? 'bg-gray-200' : 'bg-white hover:bg-gray-100'} flex cursor-pointer gap-1 px-5 py-1 text-[#2c2c2c] transition-all`}
               >
                 <div className="mb-2 flex items-center gap-2">
-                  <div className="flex size-20 items-center justify-center overflow-hidden rounded-full">
+                  <div className="flex size-10 items-center justify-center overflow-hidden rounded-full">
                     <img
                       src={
                         receiver.img_url ||
-                        'https://i.pinimg.com/564x/de/0a/47/de0a470a4617bb6272ad32dea7c497ce.jpg'
+                        'https://www.transparentpng.com/download/user/gray-user-profile-icon-png-fP8Q1P.png '
                       }
                       className="max-w-full object-cover"
                       alt={receiver.name}
                     />
                   </div>
                   <div className="flex flex-col justify-center">
-                    <h4 className="text-lg">{receiver.name}</h4>
+                    <h4 className="text-base">{receiver.name} </h4>
+                    <p className={'text-xs'}>
+                      {receiver.role === 'ADMIN' ? 'Manage' : 'Guest'}
+                    </p>
                     <p
-                      className={`${receiver.status === 'ONLINE' ? 'text-emerald-500' : 'text-slate-600'} text-base`}
+                      className={`${receiver.status === 'ONLINE' ? 'text-emerald-500' : 'text-slate-600'} text-xs`}
                     >
                       {receiver.status.toLowerCase()}
+                    </p>
+                  </div>
+                  <div className="flex h-[18px] w-[18px] flex-col items-center justify-center">
+                    <p
+                      className={`${unreadMessages >= 1 && save_ReiverID_unreadMessages === receiver.name && save_ReiverID !== receiver.name ? 'bg-red-600 text-gray-200' : 'hidden text-blue-600'} flex h-4 w-4 flex-col items-center justify-center rounded-full text-xs`}
+                    >
+                      {unreadMessages}
                     </p>
                   </div>
                 </div>
@@ -528,229 +644,139 @@ function Chatroom(props) {
 
           <div className="relative w-[calc(100%-200px)]">
             <div className="display: flex; relative h-[calc(100%-40px)] overflow-x-hidden px-4 py-2">
+              <div
+                className={`${save_ReiverID === null ? 'hidden' : ''} flex flex-col items-center justify-center overflow-hidden`}
+              >
+                <p className="mt-2 text-center text-sm text-gray-500">
+                  Hiện tại bạn đã có thể trò chuyện với {save_ReiverID}
+                </p>
+              </div>
               <ul className="flex flex-col space-y-1">
-                {messages.map((messageItem, index) => {
-                  return (
-                    <li
-                      key={index}
-                      className={`flex items-start ${
+                {messages.map((messageItem) => (
+                  <li
+                    key={messageItem.id}
+                    className={`flex items-start ${
+                      messageItem.senderId === name
+                        ? 'ml-auto flex-row-reverse'
+                        : 'mr-auto'
+                    } max-w-[80%] rounded-lg text-sm`}
+                  >
+                    {/* <div className="flex flex-col items-start"> */}
+                    {/* <img
+                      src={
                         messageItem.senderId === name
-                          ? 'ml-auto flex-row-reverse'
-                          : 'mr-auto'
-                      } max-w-[80%] rounded-lg text-sm`}
-                    >
-                      <div className="flex flex-col items-start">
-                        <img
-                          src={
-                            messageItem.senderId === name
-                              ? userImgUrl
-                              : messageItem.senderImage
-                          }
-                          className="h-[60px] w-[60px] rounded-full"
-                          alt="Sender"
-                        />
-                      </div>
-                      {isImageUrl(messageItem.content) ? (
-                        <img
-                          src={messageItem.content}
-                          className={`max-w-[42%] ${
-                            messageItem.senderId === name
-                              ? 'mt-15 mr-2 bg-stone-700 text-right text-white'
-                              : 'mt-15 ml-2 bg-gray-200 text-left'
-                          } mt-2 rounded-lg`}
-                          alt="Message content"
-                        />
-                      ) : (
+                          ? userImgUrl ||
+                            'https://i.pinimg.com/564x/de/0a/47/de0a470a4617bb6272ad32dea7c497ce.jpg'
+                          : messageItem.senderImage ||
+                            'https://i.pinimg.com/564x/de/0a/47/de0a470a4617bb6272ad32dea7c497ce.jpg'
+                      }
+                      className="h-[60px] w-[60px] rounded-full"
+                      alt="Sender"
+                    /> */}
+                    {/* </div> */}
+                    {isImageUrl(messageItem.content) ? (
+                      <img
+                        src={messageItem.content}
+                        className={`max-w-[42%] ${
+                          messageItem.senderId === name
+                            ? 'mt-15 mr-2 bg-stone-400 text-right text-white'
+                            : 'mt-15 ml-2 bg-gray-200 text-left'
+                        } mt-2 rounded-lg`}
+                        alt="Message content"
+                      />
+                    ) : (
+                      <div>
                         <p
-                          className={`${
+                          className={`flex items-start ${
                             messageItem.senderId === name
-                              ? 'mt-15 mr-4 bg-stone-700 text-right text-white'
-                              : 'mt-15 ml-4 bg-gray-200 text-left'
-                          } mt-2 max-w-[85%] whitespace-pre-wrap rounded-lg px-2 py-2 text-base`}
+                              ? 'ml-auto flex-row-reverse'
+                              : 'mr-auto'
+                          } mt-3 max-w-none rounded-lg px-4 text-xs italic`}
                         >
-                          {messageItem.content}
+                          {messageItem.senderId}
                         </p>
-                      )}
-                    </li>
-                  );
-                })}
+                        {editingMessageId === messageItem.id ? (
+                          <div className="flex flex-col">
+                            <textarea
+                              value={editContent}
+                              onChange={(e) => setEditContent(e.target.value)}
+                              className="h-[100px] w-[400px] rounded-lg bg-gray-200 p-2"
+                            />
+                            <div className="mt-2 flex space-x-2">
+                              <button
+                                onClick={() => {
+                                  handleConfirmClick(messageItem);
+                                }}
+                                className="rounded bg-blue-500 px-2 py-1 text-white"
+                                title="Submit Chỉnh Sửa"
+                              >
+                                <IoMdCheckmarkCircle />
+                              </button>
+                              <button
+                                onClick={handleCancelEdit}
+                                className="rounded bg-gray-500 px-2 py-1 text-white"
+                                title="Cancel Chỉnh Sửa"
+                              >
+                                <IoMdCloseCircle />
+                              </button>
+                              {messageItem.senderId === name && (
+                                <div className="flex space-x-2">
+                                  <button
+                                    onClick={() =>
+                                      handleDeleteClick(messageItem)
+                                    }
+                                    className="rounded bg-red-500 px-2 py-1 text-white"
+                                    title="Thu Hồi"
+                                  >
+                                    <IoMdTrash />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <p
+                            className={`${
+                              messageItem.senderId === name
+                                ? 'ml-auto bg-stone-500 text-white'
+                                : 'ml-r bg-gray-200'
+                            } mt-2 max-w-max rounded-lg px-2 py-2 text-base`}
+                            onClick={() =>
+                              messageItem.senderId === name &&
+                              fetchAndDisplayUserChat() &&
+                              handleEditClick(messageItem)
+                            }
+                          >
+                            {messageItem.content}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </li>
+                ))}
                 <div ref={messagesEndRef} />
               </ul>
             </div>
             <form
               onSubmit={handleSendMessage}
-              className="border-gray absolute bottom-0 left-0 right-0 flex h-12 items-center border-t border-solid"
+              className="border-gray absolute bottom-0 left-0 right-0 flex items-center border-t border-solid"
             >
               <input
                 value={message}
                 onChange={handleChangeMessage}
-                className="h-full w-full px-2 py-1 text-sm outline-none"
+                className="h-11 flex-1 px-2 py-1 text-sm outline-none"
                 placeholder="Nhập tin nhắn..."
               />
-              <button
-                type="button"
-                id="optional2"
-                className="w-50px size-15 mx-2 flex h-full items-center justify-center"
-                onClick={toggleOptionalList2}
-                title="Tìm kiêm thông tin về sản phẩm"
-              >
-                <IoIosShirt />
-              </button>
-              <button
-                type="button"
-                id="optional"
-                className="w-50px size-15 mx-2 flex h-full items-center justify-center"
-                onClick={toggleOptionalList}
-                title="Tìm từ khóa Chat Bot"
-              >
-                <IoMdSearch />
-              </button>
-              <button
-                type="button"
-                id="optional3"
-                className="w-50px size-15 mx-2 flex h-full items-center justify-center"
-                onClick={toggleOptionalList3}
-                title="Chọn nhãn dán"
-              >
-                <IoLogoPinterest />
-              </button>
-              <button
-                type="button"
-                id="emoji-btn"
-                className="w-50px size-15 mx-2 flex h-full items-center justify-center"
-                onClick={toggleShowEmojiList}
-                title="Chọn biểu tượng cảm xúc"
-              >
-                <IoMdHappy />
-              </button>
-              <button
-                type="submit"
-                className="flex size-12 h-full items-center justify-center rounded-full bg-blue-500 px-4 text-xl text-white transition-all hover:bg-blue-400"
-                title="Gửi Message"
-              >
-                <IoIosPaperPlane />
-              </button>
+              <div className="flex items-center px-5">
+                <button
+                  type="submit"
+                  className="flex size-8 items-center justify-center rounded-full bg-blue-500 text-xl text-white transition-all hover:bg-blue-400"
+                  title="Gửi Message"
+                >
+                  <IoIosPaperPlane />
+                </button>
+              </div>
             </form>
-          </div>
-          <div className="border-gray w-[450px] border-r border-solid">
-            {optionalListVisible && (
-              <div
-                className="overflow-auto rounded border border-gray-300 bg-white shadow-lg"
-                style={{
-                  top: '100%',
-                  left: '0',
-                  maxHeight: '802px', // Adjust height as needed
-                }}
-              >
-                <input
-                  type="text"
-                  value={inputFilter}
-                  onChange={handleInputChange}
-                  className="w-full border-b border-gray-300 px-2 py-1 text-sm"
-                  placeholder="Tìm kiếm từ khóa Chat Bot..."
-                />
-                <ul>
-                  {filteredOptions.map((option, index) => (
-                    <li
-                      key={index}
-                      className="cursor-pointer px-4 py-2 text-sm hover:bg-gray-300"
-                      onClick={() => handleOptionClick(option)}
-                    >
-                      {option}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {optionalListVisible2 && (
-              <div
-                className="overflow-auto rounded border border-gray-300 bg-white shadow-lg"
-                style={{
-                  top: '100%',
-                  left: '0',
-                  maxHeight: '802px',
-                }}
-              >
-                <input
-                  type="text"
-                  value={inputFilter2}
-                  onChange={handleInputChange2}
-                  className="w-full border-b border-gray-300 px-2 py-1 text-sm"
-                  placeholder="Tìm kiếm từ khóa sản phẩm..."
-                />
-                <ul>
-                  {filteredOptions2.map((option, index) => (
-                    <li
-                      key={index}
-                      className="flex cursor-pointer items-center gap-4 px-4 py-2 hover:bg-gray-300"
-                      onClick={() => handleOptionClick2(option)}
-                    >
-                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-full">
-                        <img
-                          src={option.imageMain}
-                          className="h-full w-full object-cover"
-                          alt={`Option ${index}`}
-                        />
-                      </div>
-                      <div className="ml-4 flex flex-col">
-                        <p className="hidden text-sm font-medium">
-                          {option.sku}
-                        </p>
-                        <p className="font-family: ui-serif bold text-sm font-medium">
-                          {option.name}
-                        </p>
-                        <p className="text-xs line-through">
-                          OriginalPrice: {option.originalPrice} VND
-                        </p>
-                        <p className="text-xs text-red-700">
-                          Sale Price: {option.finalPrice} VND
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {optionalListVisible3 && (
-              <div
-                className="overflow-auto rounded border border-gray-300 bg-white shadow-lg"
-                style={{
-                  top: '100%',
-                  left: '0',
-                  maxHeight: '802px',
-                }}
-              >
-                <ul className="grid grid-cols-3 gap-4 p-1">
-                  {' '}
-                  {/* Use grid layout with 4 columns */}
-                  {filteredOptions3.map((option, index) => (
-                    <li
-                      key={index}
-                      className="flex cursor-pointer flex-col items-center"
-                      onClick={() => {
-                        handleOptionClick3(option);
-                      }}
-                    >
-                      <img
-                        src={option.img_url}
-                        alt="option image"
-                        className="h-full w-full rounded-sm object-cover"
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {showEmojiPicker && (
-              <div id="emoji-picker" className="absolute right-0">
-                <EmojiPicker
-                  onEmojiClick={handleEmojiClick}
-                  height="50em"
-                  width="19.5em"
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>

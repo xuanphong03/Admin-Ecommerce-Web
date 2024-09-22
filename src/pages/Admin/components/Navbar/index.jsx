@@ -62,11 +62,6 @@ const NavList = [
     name: 'Hỗ trợ khách hàng',
     children: [
       {
-        id: '9.1',
-        name: 'Tin nhắn',
-        path: '/support/message',
-      },
-      {
         id: '9.2',
         name: 'Q&A',
         path: '/support/qa',

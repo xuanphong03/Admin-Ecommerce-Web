@@ -50,16 +50,6 @@ const userSlice = createSlice({
   },
 });
 
-// [register.fulfilled]: (state, action) => {
-//     state.current = action.payload;
-//   },
-
-//   [login.fulfilled]: (state, action) => {
-//     state.current = action.payload;
-//   },
-
-// Action creators are generated for each case reducer function
-// export const { increment, decrement, incrementByAmount } = counterSlice.actions
 const { actions, reducer } = userSlice;
 export default reducer;
 export const { logout } = actions;

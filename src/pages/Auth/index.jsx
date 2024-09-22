@@ -43,7 +43,7 @@ function AuthenticationPage() {
       const action = login(values);
       const resultAction = await dispatch(action);
       const user = unwrapResult(resultAction);
-      console.log('Infor user:', user);
+      // console.log('Infor user:', user);
       navigate('/');
     } catch (error) {
       toast.error('Error!!!');
