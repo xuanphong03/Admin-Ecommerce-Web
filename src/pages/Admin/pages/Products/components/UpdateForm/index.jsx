@@ -1580,6 +1580,7 @@ function UpdateProductForm({ productDetail, onSubmit }) {
         setSelectedMaterial(selectedMaterial || null);
         //ảnh
         setImages(productDetail.images);
+        // setImages((prevImages) => [...prevImages, productDetail.imageMain]);
       } catch (error) {
         // log error message
       }
@@ -1944,7 +1945,7 @@ function UpdateProductForm({ productDetail, onSubmit }) {
             images.map((image) => (
               <img
                 key={image.id}
-                src={image.img_url}
+                src={image}
                 alt={image.imageName}
                 className={`ml-1 h-1/6 w-1/6 cursor-pointer object-cover`}
               />
