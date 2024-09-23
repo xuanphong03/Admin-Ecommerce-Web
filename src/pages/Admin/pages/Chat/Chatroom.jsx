@@ -39,7 +39,7 @@ function Chatroom(props) {
   const token = localStorage.getItem(StorageKeys.TOKEN) || '';
   const user = JSON.parse(localStorage.getItem(StorageKeys.USER)) || {};
   const { id, name, userImgUrl } = user;
-  const [chatting, setChatting] = useState(true);
+  const [chatting, setChatting] = useState(false);
   const [receiverId, setReceiverId] = useState();
   const [receiversList, setReceiversList] = useState([]);
   const [message, setMessage] = useState('');
@@ -592,7 +592,7 @@ function Chatroom(props) {
           <div className="border-gray w-[320px] border-r border-solid">
             {receiversList.map((receiver) => (
               <article
-                key={receiver.id}
+                key={uuidv4()}
                 onClick={() => {
                   setReceiverId(receiver.name);
                   if (save_ReiverID === receiver.name) {
@@ -654,7 +654,7 @@ function Chatroom(props) {
               <ul className="flex flex-col space-y-1">
                 {messages.map((messageItem) => (
                   <li
-                    key={messageItem.id}
+                    key={uuidv4()}
                     className={`flex items-start ${
                       messageItem.senderId === name
                         ? 'ml-auto flex-row-reverse'

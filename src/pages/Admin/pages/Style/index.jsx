@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { FaRegEdit } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import CreateStyleForm from './Forms/CreateStyleForm';
-import UpdateStyleForm from './Forms/UpdateStyleForm';
+import { v4 as uuidv4 } from 'uuid';
 import style from '~/apis/style';
-import { MdDeleteOutline } from 'react-icons/md';
+import CreateStyleForm from './Forms/CreateStyleForm';
 import DeleteForm from './Forms/DeleteForm';
+import UpdateStyleForm from './Forms/UpdateStyleForm';
 
 function StylePage() {
   const [categoriesList, setCategoriesList] = useState([]);
@@ -32,7 +31,6 @@ function StylePage() {
   const handleCreateStyle = async (data) => {
     try {
       await style.create(data);
-      // Đóng form và fetch lại dữ liệu
       setOpenForm(false);
       setIsCreating(false);
       fetchAllStyle();
@@ -82,88 +80,83 @@ function StylePage() {
 
   return (
     <>
-      <section className="relative px-10 py-5">
-        <div className="border-gray border-b border-solid pb-5">
+      <section className="relative px-5 py-2">
+        <div className="mb-5">
           <button
             onClick={() => {
               setOpenForm(true);
               setIsCreating(true);
             }}
-            className="rounded bg-green-600 px-5 py-2 text-white transition-colors hover:bg-green-500"
+            className="bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
           >
-            Tạo mới loại sản phẩm
+            Thêm mới phong cách
           </button>
         </div>
-        <div className="relative mt-5 overflow-x-auto">
-          <table className="w-full text-center text-sm text-gray-500">
-            <thead className="bg-gray-50 text-xs uppercase text-gray-700">
+        <div className="relative overflow-x-auto border border-solid border-gray-300">
+          <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
+            <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th className="px-6 py-3 text-center">STT</th>
-                <th className="w-1/6 px-6 py-3">Ảnh minh họa Phong cách</th>
-                {/* <th className="w-1/6 px-6 py-3">Mã Thương Hiệu</th> */}
-                <th className="w-1/6 px-6 py-3 text-center">Tên Phong cách</th>
-                <th className="w-1/3 px-6 py-3 text-center">Mô tả</th>
-                <th className="w-1/6 px-6 py-3 text-center">Tình trạng</th>
-                <th className="w-1/6 px-6 py-3 text-center">Options</th>
+                <th scope="col" className="px-6 py-3">
+                  #
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Tên phong cách
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Trạng thái
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Sửa
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Xóa
+                </th>
               </tr>
             </thead>
             <tbody>
-              {categoriesList.map((category, index) => {
-                return (
-                  <tr
-                    key={category.name}
-                    className="border-b bg-white text-gray-900 dark:border-gray-700 dark:bg-gray-800"
+              {categoriesList.map((category, index) => (
+                <tr
+                  key={uuidv4()}
+                  className="border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800"
+                >
+                  <td className="px-6 py-4">{index + 1}</td>
+                  <th
+                    scope="row"
+                    className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
                   >
-                    <td className="px-6 py-4">{index + 1}</td>
-                    <td className="w-1/6 px-6 py-4">
-                      {category.image_url && (
-                        <img
-                          src={category.image_url}
-                          alt="Ảnh minh họa"
-                          className="mx-auto h-32 w-full object-contain"
-                        />
-                      )}
-                    </td>
-                    {/* <td className="w-1/9 px-6 py-4">{category.sku}</td> */}
-                    <td className="w-1/9 whitespace-nowrap px-6 py-4 dark:text-white">
-                      {category.name}
-                    </td>
-                    <td className="w-1/3 px-6 py-4">{category.description}</td>{' '}
-                    {/* Hiển thị mô tả */}
-                    <td className={`w-1/6 px-6 py-4`}>
-                      <p
-                        className={`${category.status === 1 ? 'bg-blue-500' : 'bg-red-500'} mx-auto w-fit rounded px-3 py-1 text-white`}
-                      >
-                        {category.status === 1
-                          ? 'Còn kinh doanh'
-                          : 'Ngừng kinh doanh'}
-                      </p>
-                    </td>
-                    <td className="flex flex-col items-center gap-1 px-6 py-4 pt-12">
-                      <button
-                        onClick={() => {
-                          setOpenForm(true);
-                          setIsUpdating(true);
-                          setUpdatedStyle(category);
-                        }}
-                        className="flex w-fit items-center justify-center gap-2 rounded bg-green-600 px-4 py-1 text-white hover:bg-green-500"
-                      >
-                        Sửa <FaRegEdit />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setOpenForm(true);
-                          setIsDeleting(true);
-                          setDeletedCategory(category);
-                        }}
-                        className="flex w-fit items-center justify-center gap-2 rounded bg-red-600 px-4 py-1 text-white hover:bg-red-500"
-                      >
-                        Xóa <MdDeleteOutline />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                    {category.name}
+                  </th>
+                  <td className="px-6 py-4">
+                    {category.status === 1
+                      ? 'Còn kinh doanh'
+                      : 'Ngừng kinh doanh'}
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => {
+                        setOpenForm(true);
+                        setIsUpdating(true);
+                        setUpdatedStyle(category);
+                      }}
+                      className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                    >
+                      Sửa
+                    </button>
+                  </td>
+                  <td className="px-6 py-4">
+                    <button
+                      onClick={() => {
+                        setOpenForm(true);
+                        setIsDeleting(true);
+                        setDeletedCategory(category);
+                      }}
+                      className="font-medium text-red-600 hover:underline dark:text-red-500"
+                    >
+                      Xóa
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

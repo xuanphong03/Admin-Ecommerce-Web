@@ -566,78 +566,9 @@ function UpdateCategoryForm({ category, onSubmit }) {
               }),
             }}
           />
-          <label htmlFor="image_url">
-            Ảnh minh họa<span className="text-red-500"> *</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Nhập URL ảnh"
-            id="image_url"
-            {...register('image_url')}
-            className="border-gray w-full border border-solid px-3 py-2 text-sm outline-blue-500"
-            onChange={handleImageUrlChange}
-          />
-          {previewImage && (
-            <div className="mt-2">
-              <img
-                src={previewImage}
-                alt="Ảnh minh họa"
-                className="mx-auto h-80 w-full object-contain"
-              />
-            </div>
-          )}
           {errors.image_url?.message && (
             <p className="px-1 text-red-500">{errors.image_url?.message}</p>
           )}
-          {/* <div className="flex flex-col gap-1 text-sm">
-            <label className="w-fit" htmlFor="brand">
-              Các thương hiệu kinh doanh<span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <input
-                placeholder="Nhập tên thương hiệu"
-                value={brandName}
-                onChange={(e) => {
-                  const newBrandName = e.target.value;
-                  setBrandName(newBrandName);
-                }}
-                type="text"
-                id="brand"
-                className={`border-gray w-full rounded border border-solid px-3 py-2 outline-blue-500`}
-              />
-              <button
-                onClick={handleAddBrand}
-                className="absolute right-0 top-1/2 h-full -translate-y-1/2 rounded-r bg-blue-500 px-2 text-white hover:bg-blue-400"
-              >
-                Thêm
-              </button>
-            </div>
-            {brandsList.length ? (
-              <ul className="mt-2 flex flex-wrap gap-2">
-                {brandsList.map((brand, index) => {
-                  return (
-                    <li
-                      key={index}
-                      className="relative h-fit w-fit max-w-40 break-words rounded bg-sky-500 px-4 py-1 text-white"
-                    >
-                      <span
-                        onClick={() => handleRemoveBrand(brand)}
-                        className="absolute -right-1 -top-1 flex size-4 cursor-pointer items-center justify-center rounded-full bg-red-500"
-                      >
-                        &times;
-                      </span>
-                      {brand}
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <></>
-            )}
-            {errors.brands?.message && (
-              <p className="px-1 text-red-500">{errors.brands?.message}</p>
-            )}
-          </div> */}
           <div className="flex flex-col gap-1 text-sm">
             <label className="w-fit" htmlFor="brand">
               Các thương hiệu kinh doanh<span className="text-red-500">*</span>

@@ -1,8 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaSpinner } from 'react-icons/fa6';
-import { toast } from 'react-toastify';
 import * as yup from 'yup';
 import InputField from '~/components/form-controls/InputField';
 
@@ -14,8 +12,7 @@ const schema = yup.object().shape({
 });
 
 function UpdateMaterialForm({ category, onSubmit }) {
-  const { sku, name, description, status, image_url } = category;
-  const [imageUrl, setImageUrl] = useState(image_url);
+  const { name, status } = category;
   const {
     handleSubmit,
     register,
@@ -23,10 +20,7 @@ function UpdateMaterialForm({ category, onSubmit }) {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: {
-      image_url: imageUrl,
-      description: description,
-    },
+    defaultValues: {},
   });
 
   const formSubmit = async (data) => {
@@ -42,7 +36,7 @@ function UpdateMaterialForm({ category, onSubmit }) {
   return (
     <>
       <h2 className="mb-5 text-center font-medium uppercase">
-        Chỉnh sửa thương hiệu
+        Chỉnh sửa chất liệu
       </h2>
       <form
         onSubmit={handleSubmit(formSubmit)}
@@ -58,45 +52,6 @@ function UpdateMaterialForm({ category, onSubmit }) {
             errorMessage={errors.materialName?.message}
             register={{ ...register('materialName', { value: name }) }}
           />
-          <InputField
-            id="image_url"
-            label="Ảnh Minh họa"
-            placeholder="Nhập Url của ảnh minh họa"
-            required={true}
-            errorMessage={errors.image_url?.message}
-            register={{
-              ...register('image_url', {
-                value: image_url,
-              }),
-              onChange: (e) => setImageUrl(e.target.value),
-            }}
-          />
-          {imageUrl && (
-            <div className="mt-2">
-              <img
-                src={imageUrl}
-                alt="Ảnh minh họa"
-                className="max-h-60 w-full object-contain"
-              />
-            </div>
-          )}
-          <div>
-            <label htmlFor="description">
-              Mô tả<span className="text-red-500"> *</span>
-            </label>
-            <textarea
-              id="description"
-              placeholder="Nhập mô tả thương hiệu"
-              className="border-gray h-[240px] w-full border border-solid px-3 py-2 text-sm outline-blue-500"
-              rows={4}
-              {...register('description', { value: description })}
-            />
-            {errors.description && (
-              <p className="text-sm text-red-500">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
 
           <div>
             <label htmlFor="status">
