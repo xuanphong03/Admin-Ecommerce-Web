@@ -18,13 +18,11 @@ const schema = yup.object().shape({
     .min(1, 'Vui lòng nhập ít nhất 1 hãng sản phẩm cho loại sản phẩm')
     .required('Vui lòng nhập ít nhất 1 hãng sản phẩm cho loại sản phẩm'),
   status: yup.number(),
-  image_url: yup.string().url('Vui lòng nhập URL hợp lệ của ảnh minh họa.'),
 });
 
 function CreateCategoryForm({ onSubmit }) {
   const [brandName, setBrandName] = useState('');
   const [brandsList, setBrandsList] = useState([]);
-  const [imageUrl, setImageUrl] = useState('');
   const {
     handleSubmit,
     register,
@@ -94,26 +92,7 @@ function CreateCategoryForm({ onSubmit }) {
             errorMessage={errors.categoryName?.message}
             register={{ ...register('categoryName') }}
           />
-          <InputField
-            id="image_url"
-            label="Ảnh Minh họa"
-            placeholder="Nhập Url của ảnh minh họa"
-            required={true}
-            errorMessage={errors.image_url?.message}
-            register={{
-              ...register('image_url'),
-              onChange: (e) => setImageUrl(e.target.value),
-            }}
-          />
-          {imageUrl && (
-            <div className="mt-2">
-              <img
-                src={imageUrl}
-                alt="Ảnh minh họa"
-                className="max-h-80 w-full object-contain"
-              />
-            </div>
-          )}
+
           <div className="flex flex-col gap-1 text-sm">
             <label className="w-fit" htmlFor="brand">
               Chi tiết loại sản phẩm<span className="text-red-500">*</span>

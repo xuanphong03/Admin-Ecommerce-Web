@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { IoWarningOutline } from 'react-icons/io5';
 
 DeleteForm.propTypes = {
   product: PropTypes.object.isRequired,
@@ -6,7 +7,7 @@ DeleteForm.propTypes = {
   onCancel: PropTypes.func,
 };
 
-function DeleteForm({ product, onSubmit, onCancel }) {
+function DeleteForm({ productId, onSubmit, onCancel }) {
   const handleCancel = () => {
     if (onCancel) {
       onCancel();
@@ -15,17 +16,18 @@ function DeleteForm({ product, onSubmit, onCancel }) {
 
   const handleDelete = () => {
     if (onSubmit) {
-      onSubmit(product.id);
+      onSubmit(productId);
     }
   };
 
   return (
-    <div>
-      <h1 className="text-xl font-medium uppercase">Xác nhận xóa sản phẩm</h1>
-      <p className="my-5 text-sm">
-        Bạn thật sự muốn xóa sản phẩm <i>{product.name}</i> chứ?
+    <div className="flex flex-col items-center px-20 py-2">
+      <IoWarningOutline className="text-8xl text-yellow-500" />
+      <h1 className="mb-1 mt-5 text-2xl font-bold">Bạn chắc chứ ?</h1>
+      <p className="text-sm text-gray-700">
+        Bạn thật sự muốn xóa sản phẩm này?
       </p>
-      <div className="flex justify-end gap-5">
+      <div className="mt-5 flex justify-end gap-2">
         <button
           onClick={handleCancel}
           className="rounded bg-red-500 px-4 py-1 text-white hover:bg-red-400"
@@ -34,9 +36,9 @@ function DeleteForm({ product, onSubmit, onCancel }) {
         </button>
         <button
           onClick={handleDelete}
-          className="rounded bg-green-500 px-4 py-1 text-white hover:bg-green-400"
+          className="rounded bg-blue-500 px-4 py-1 text-white hover:bg-blue-400"
         >
-          Xóa sản phẩm
+          Xác nhận
         </button>
       </div>
     </div>

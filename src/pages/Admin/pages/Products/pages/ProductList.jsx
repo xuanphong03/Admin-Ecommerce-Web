@@ -1,19 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
-import { formatPrice } from '~/utils/formatCurrency';
-import { MdDeleteOutline } from 'react-icons/md';
-import { FaEye } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import TableHeader from '../components/TableHeader';
-import productApi from '~/apis/productApi';
-import DeleteForm from '../components/DeleteForm';
-import { toast } from 'react-toastify';
 import { Pagination } from '@mui/material';
 import queryString from 'query-string';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
+import productApi from '~/apis/productApi';
+import { formatPrice } from '~/utils/formatCurrency';
+import DeleteForm from '../components/DeleteForm';
+
 function ProductsList() {
   const navigate = useNavigate();
+
   const [productsList, setProductsList] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [deletedProduct, setDeletedProduct] = useState(null);
+  const [deletingProductId, setDeletingProductId] = useState(null);
+
   const queryParams = useMemo(() => {
     const params = queryString.parse(location.search);
 
@@ -80,88 +81,146 @@ function ProductsList() {
   };
 
   return (
-    <>
-      <section className="relative px-5 py-6">
-        <div className="border-b border-solid border-black pb-5">
-          <Link to="/product/create_product">
-            <button className="rounded bg-green-600 px-5 py-2 text-sm text-[#f5f5f5]">
-              Thêm sản phâm mới
-            </button>
+    <Fragment>
+      <section className="relative px-5 py-2">
+        <button className="mb-5">
+          <Link
+            to="/product/create_product"
+            className="bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
+          >
+            Thêm sản phẩm
           </Link>
+        </button>
+        <div className="relative overflow-x-auto border border-solid border-gray-300">
+          <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
+            <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+              <tr>
+                <th scope="col" className="px-6 py-3">
+                  #
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Ảnh
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Tên sản phẩm
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Loại sản phẩm
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Giá
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Mô tả
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Trạng thái
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Chi tiết
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Xóa
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {productsList.length > 0 &&
+                productsList.map(
+                  (
+                    {
+                      id,
+                      imageMain,
+                      name,
+                      finalPrice,
+                      category,
+                      quantitySold,
+                      totalQuantity,
+                      description,
+                    },
+                    index,
+                  ) => (
+                    <tr
+                      key={uuidv4()}
+                      className="border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800"
+                    >
+                      <td className="px-6 py-4">
+                        {index + 1 + (pagination.page - 1) * 10}
+                      </td>
+                      <td className="px-6 py-4">
+                        <img
+                          className="size-10"
+                          alt="product image"
+                          src={imageMain}
+                        />
+                      </td>
+                      <th
+                        scope="row"
+                        className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+                      >
+                        <h4 className="w-60">{name}</h4>
+                      </th>
+                      <td className="px-6 py-4">{category}</td>
+
+                      <td className="px-6 py-4">
+                        {formatPrice(finalPrice, 'VNĐ')}
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="w-60">{description}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p
+                          className={`${totalQuantity - quantitySold > 0 ? 'text-green-500' : 'text-red-500'} `}
+                        >
+                          {totalQuantity - quantitySold > 0
+                            ? 'Còn hàng'
+                            : 'Hết hàng'}
+                        </p>
+                        {totalQuantity - quantitySold > 0 && (
+                          <span>({totalQuantity - quantitySold})</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <Link
+                          to={`/product/${id}`}
+                          className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                        >
+                          Chi tiết
+                        </Link>
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => {
+                            setIsDeleting(true);
+                            setDeletingProductId(id);
+                          }}
+                          className="font-medium text-red-600 hover:underline dark:text-red-500"
+                        >
+                          Xóa
+                        </button>
+                      </td>
+                    </tr>
+                  ),
+                )}
+            </tbody>
+          </table>
         </div>
-        <div className="pt-5">
-          <TableHeader />
-          <div className="w-full py-2 shadow-table">
-            {productsList.map((productItem, index) => (
-              <div
-                key={productItem.id}
-                className={`${index < productsList.length - 1 ? 'border-gray border-b border-solid' : ''}`}
-              >
-                <div className="flex justify-between py-3 text-sm">
-                  <div className="flex basis-[5%] items-center justify-center text-center">
-                    <p>{index + 1}</p>
-                  </div>
-                  <div className="flex basis-[10%] items-center justify-center text-center">
-                    <div className="flex size-16 items-center justify-center">
-                      <img
-                        className="max-w-full"
-                        alt="product thumbnail"
-                        src={
-                          (productItem.images.length &&
-                            productItem.images[0].img_url) ||
-                          productItem.imageMain
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div className="flex basis-[20%] items-center justify-center">
-                    <h3 className="line-clamp-2 px-5">{productItem.name}</h3>
-                  </div>
-                  <div className="flex basis-[15%] items-center justify-center break-words text-center">
-                    <p>{formatPrice(productItem.originalPrice, 'VNĐ')}</p>
-                  </div>
-                  <div className="flex basis-[15%] items-center justify-center break-words text-center">
-                    <p>{formatPrice(productItem.finalPrice, 'VNĐ')}</p>
-                  </div>
 
-                  <div className="flex basis-[20%] items-center justify-center">
-                    <p className="line-clamp-2">{productItem.description}</p>
-                  </div>
+        {productsList.length <= 0 && (
+          <p className="border border-solid border-gray-300 px-5 py-10 text-center">
+            Không có bất kỳ sản phẩm nào
+          </p>
+        )}
 
-                  <div className="flex basis-[15%] flex-col items-center justify-center gap-2 text-xs">
-                    <Link
-                      to={`/product/${productItem.id}`}
-                      className="flex w-1/2 items-center justify-center gap-2 rounded bg-blue-600 px-3 py-2 text-[#fafafa] hover:bg-blue-500"
-                    >
-                      Chi tiết
-                      <FaEye />
-                    </Link>
-
-                    <button
-                      onClick={() => {
-                        setIsDeleting(true);
-                        setDeletedProduct(productItem);
-                      }}
-                      className="flex w-1/2 items-center justify-center gap-2 rounded bg-red-600 px-3 py-2 text-[#fafafa] hover:bg-red-500"
-                    >
-                      Xóa
-                      <MdDeleteOutline />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="m-10 flex justify-center">
-            <Pagination
-              count={Math.ceil(pagination.total / pagination.limit)}
-              page={pagination.page}
-              onChange={handlePageChange}
-              variant="outlined"
-              shape="rounded"
-              color="primary"
-            />
-          </div>
+        <div className="m-10 flex justify-center pb-10">
+          <Pagination
+            count={Math.ceil(pagination.total / pagination.limit)}
+            page={pagination.page}
+            onChange={handlePageChange}
+            variant="outlined"
+            shape="rounded"
+            color="primary"
+          />
         </div>
       </section>
       {isDeleting && (
@@ -176,12 +235,12 @@ function ProductsList() {
             <DeleteForm
               onSubmit={handleDeleteProduct}
               onCancel={handleCancelDelete}
-              product={deletedProduct}
+              productId={deletingProductId}
             />
           </div>
         </>
       )}
-    </>
+    </Fragment>
   );
 }
 

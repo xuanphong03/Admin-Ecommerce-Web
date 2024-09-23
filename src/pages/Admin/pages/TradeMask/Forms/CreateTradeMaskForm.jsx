@@ -1,5 +1,4 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaSpinner } from 'react-icons/fa6';
 import * as yup from 'yup';
@@ -13,12 +12,9 @@ const schema = yup.object().shape({
     .required('Vui lòng nhập mã loại sản phẩm.'),
   tradeMarkName: yup.string().required('Vui lòng nhập mô tả thương hiệu.'),
   status: yup.number(),
-  image_url: yup.string().url('Vui lòng nhập URL hợp lệ của ảnh minh họa.'),
-  description: yup.string().required('Vui lòng nhập mô tả thương hiệu.'), // Thay đổi hoặc thêm quy tắc xác thực nếu cần
 });
 
 function CreateTradeMaskForm({ onSubmit }) {
-  const [imageUrl, setImageUrl] = useState('');
   const {
     handleSubmit,
     register,
@@ -59,41 +55,7 @@ function CreateTradeMaskForm({ onSubmit }) {
             errorMessage={errors.tradeMarkName?.message}
             register={{ ...register('tradeMarkName') }}
           />
-          <InputField
-            id="image_url"
-            label="Ảnh Minh họa Thương hiệu"
-            placeholder="Nhập Url của ảnh minh họa"
-            required={true}
-            errorMessage={errors.image_url?.message}
-            register={{
-              ...register('image_url'),
-              onChange: (e) => setImageUrl(e.target.value),
-            }}
-          />
-          {imageUrl && (
-            <div className="mt-2">
-              <img
-                src={imageUrl}
-                alt="Ảnh minh họa thương hiệu"
-                className="max-h-80 w-full object-contain"
-              />
-            </div>
-          )}
-          <div>
-            <label htmlFor="description">Mô tả</label>
-            <textarea
-              {...register('description')}
-              id="description"
-              placeholder="Nhập mô tả"
-              rows="5"
-              className="border-gray w-full resize-none border border-solid px-3 py-2 text-sm outline-blue-500"
-            />
-            {errors.description && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
+
           <div>
             <label htmlFor="status">
               Tình trạng<span className="text-red-500"> *</span>

@@ -1,42 +1,34 @@
 import { NavLink } from 'react-router-dom';
-
+import { v4 as uuidv4 } from 'uuid';
 const NavList = [
   {
-    id: '1',
     name: 'Thống kê doanh thu',
     path: '/',
   },
   {
-    id: '3',
     name: 'Loại sản phẩm',
     path: '/categories',
   },
   {
-    id: '4',
     name: 'Thương hiệu Hợp Tác',
     path: '/tradeMask',
   },
   {
-    id: '5',
     name: 'Phong cách',
     path: '/style',
   },
   {
-    id: '6',
     name: 'Chất liệu',
     path: '/material',
   },
   {
-    id: '7',
     name: 'Sản phẩm',
     children: [
       {
-        id: '7.1',
         path: '/product',
         name: 'Danh sách sản phẩm',
       },
       {
-        id: '7.2',
         path: '/product/create_product',
         name: 'Thêm sản phẩm',
       },
@@ -44,25 +36,16 @@ const NavList = [
   },
 
   {
-    id: '8',
     name: 'Đơn hàng',
     children: [
-      { id: '8.1', path: '/orders/', name: 'Danh sách đơn hàng' },
-      {
-        id: '8.2',
-        path: '/orders/received',
-        name: 'Đơn hàng đã giao',
-      },
-      { id: '8.3', path: '/orders/delivering', name: 'Đơn hàng đang giao' },
-      { id: '8.4', path: '/orders/cancelled', name: 'Đơn hàng đã hủy' },
+      { path: '/orders/', name: 'Danh sách đơn hàng' },
+      { path: '/orders/cancelled', name: 'Đơn hàng đã hủy' },
     ],
   },
   {
-    id: '9',
     name: 'Hỗ trợ khách hàng',
     children: [
       {
-        id: '9.2',
         name: 'Q&A',
         path: '/support/qa',
       },
@@ -77,11 +60,11 @@ function Navbar() {
         {NavList.map((navItem) => {
           if (navItem.children) {
             return (
-              <li className="mb-1 p-2" key={navItem.id}>
+              <li className="mb-1 p-2" key={uuidv4()}>
                 <span className="font-medium uppercase">{navItem.name}</span>
                 <ul className="pl-5">
                   {navItem.children.map((navChildrenItem) => (
-                    <li key={navChildrenItem.id} className="my-1">
+                    <li key={uuidv4()} className="my-1">
                       <NavLink
                         to={navChildrenItem.path}
                         className={({ isActive }) =>
@@ -98,7 +81,7 @@ function Navbar() {
             );
           }
           return (
-            <li className="mb-1" key={navItem.id}>
+            <li className="mb-1" key={uuidv4()}>
               <NavLink
                 to={navItem.path}
                 className={({ isActive }) =>
