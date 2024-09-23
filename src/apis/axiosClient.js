@@ -1,4 +1,5 @@
 import axios from 'axios';
+import StorageKeys from '~/constants/storage-key';
 
 const axiosClient = axios.create({
   baseURL: 'http://localhost:8080/api/v1/',
@@ -11,7 +12,10 @@ const axiosClient = axios.create({
 axiosClient.interceptors.request.use(
   function (config) {
     // Do something before request is sent
-
+    if (localStorage.getItem(StorageKeys.TOKEN)) {
+      const accessToken = localStorage.getItem(StorageKeys.TOKEN);
+      config.headers['Authorization'] = `Bearer ${accessToken}`;
+    }
     return config;
   },
   function (error) {
@@ -25,6 +29,8 @@ axiosClient.interceptors.response.use(
   function (response) {
     // Any status code that lie within the range of 2xx cause this function to trigger
     // Do something with response data
+    // Do something before request is sent
+
     return response && response.data ? response.data : response;
   },
   function (error) {

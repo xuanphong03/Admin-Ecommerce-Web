@@ -264,6 +264,12 @@ function ProductDetail() {
             Ảnh sản phẩm
           </h3>
           <div className="flex basis-4/5 flex-wrap gap-5 px-4 py-2">
+            <img
+              // className="max-h-1/3"
+              className="flex size-32 border-black"
+              src={product.imageMain}
+              // alt={image.identification}
+            />
             {product.images?.map((image) => (
               <div
                 className="flex size-32 items-center justify-center overflow-hidden rounded-lg border border-solid border-black"
@@ -271,7 +277,7 @@ function ProductDetail() {
               >
                 <img
                   className="max-h-full"
-                  src={image.img_url}
+                  src={image}
                   alt={image.identification}
                 />
               </div>

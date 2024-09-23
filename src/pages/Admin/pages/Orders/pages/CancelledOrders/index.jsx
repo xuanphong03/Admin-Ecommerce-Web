@@ -6,9 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { useDebounce } from '~/hooks/useDebounce';
 import { IoIosSearch } from 'react-icons/io';
 
-CanceledOrders.propTypes = {};
+CancelledOrders.propTypes = {};
 
-function CanceledOrders(props) {
+function CancelledOrders(props) {
   const FAKE_ORDERS = [
     {
       orderCode: uuidv4(),
@@ -104,6 +104,7 @@ function CanceledOrders(props) {
         <div className="basis-[10%] text-center">
           <h3>Ngày đặt hàng</h3>
         </div>
+
         <div className="basis-[10%] text-center">
           <h3>Tổng tiền</h3>
         </div>
@@ -166,4 +167,4 @@ function CanceledOrders(props) {
   );
 }
 
-export default CanceledOrders;
+export default CancelledOrders;

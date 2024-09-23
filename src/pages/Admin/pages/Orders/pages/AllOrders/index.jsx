@@ -5,6 +5,7 @@ import { formatPrice } from '~/utils/formatCurrency';
 import { v4 as uuidv4 } from 'uuid';
 import { useDebounce } from '~/hooks/useDebounce';
 import { IoIosSearch } from 'react-icons/io';
+import orderApi from '~/apis/orderApi';
 
 AllOrdersPage.propTypes = {};
 
@@ -62,6 +63,19 @@ function AllOrdersPage(props) {
       ),
     );
   };
+
+  const getOrderList = async () => {
+    try {
+      const response = await orderApi.getAll();
+      console.log('Response: ', response);
+    } catch (error) {
+      throw new Error('Failed to get order list');
+    }
+  };
+
+  useEffect(() => {
+    getOrderList();
+  }, []);
 
   return (
     <div className="px-5 py-6">
