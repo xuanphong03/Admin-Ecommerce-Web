@@ -48,34 +48,37 @@ function UpdateProductForm({ productId, onSubmit }) {
   const [mainImage, setMainImage] = useState(null);
   const [subImageList, setSubImageList] = useState([null, null, null, null]);
 
+  const getProductList = async () => {
+    try {
+      const responseProduct = await productApi.getProduct({ id: productId });
+      setValue('name', responseProduct.name);
+      setValue('category', responseProduct.category);
+      setValue('brand', responseProduct.subCategory);
+      setValue('originalPrice', responseProduct.originalPrice);
+      setValue('saleDiscountPercent', responseProduct.saleDiscountPercent);
+      setValue('sizes', responseProduct.sizes);
+      setValue('colours', responseProduct.colours);
+      setValue('description', responseProduct.description);
+      setMainImage(responseProduct.imageMain);
+      setSubImageList(responseProduct.images);
+    } catch (error) {
+      toast.error('API Category bị lỗi');
+    }
+  };
+  const getCategoryList = async () => {
+    try {
+      const responseCategory = await categoryApi.getAll();
+      const newCategoryList = responseCategory.filter(
+        (_category) => _category.status !== 0,
+      );
+      setCategoryList(newCategoryList);
+    } catch (error) {
+      throw new Error('Failed to get category list');
+    }
+  };
   useEffect(() => {
-    (async () => {
-      try {
-        const responseProduct = await productApi.getProduct({ id: productId });
-        setValue('name', responseProduct.name);
-        setValue('category', responseProduct.category);
-        setValue('brand', responseProduct.subCategory);
-        setValue('originalPrice', responseProduct.originalPrice);
-        setValue('saleDiscountPercent', responseProduct.saleDiscountPercent);
-        setValue('sizes', responseProduct.sizes);
-        setValue('colours', responseProduct.colours);
-        setValue('description', responseProduct.description);
-        setMainImage(responseProduct.imageMain);
-        setSubImageList(responseProduct.images);
-
-        const responseCategory = await categoryApi.getAll();
-        const categoryList = responseCategory.filter(
-          (_category) => _category.status !== 0,
-        );
-        setCategoryList(categoryList);
-        const newBrandList = await handleGetBrandsList(
-          responseProduct.category,
-        );
-        setBrandsList(newBrandList);
-      } catch (error) {
-        toast.error('API Category bị lỗi');
-      }
-    })();
+    getProductList();
+    getCategoryList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
@@ -165,17 +168,10 @@ function UpdateProductForm({ productId, onSubmit }) {
     }
   };
 
-  const handleGetBrandsList = async (categoryName) => {
-    const categoryList = await categoryApi.getAll();
-
+  const handleGetBrandsList = (categoryName) => {
     const currentCategory = categoryList.find(
       (category) => category.name === categoryName,
     );
-
-    console.log('>>Current category name, ', categoryName);
-    console.log('>>Current category, ', currentCategory);
-    console.log('>>Brand list', currentCategory.brands);
-
     return currentCategory ? currentCategory.brands : [];
   };
 
@@ -227,10 +223,10 @@ function UpdateProductForm({ productId, onSubmit }) {
               //   },
               // })}
               {...register('category', {
-                onChange: async (e) => {
+                onChange: (e) => {
                   const newCategory = e.target.value;
-                  const newBrandList = await handleGetBrandsList(newCategory);
-                  // setBrandsList(newBrandList);
+                  const newBrandList = handleGetBrandsList(newCategory);
+                  setBrandsList(newBrandList);
                 },
               })}
               id="category"
