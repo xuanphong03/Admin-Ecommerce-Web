@@ -1,7 +1,7 @@
 import productApi from '~/apis/productApi';
 import CreateProductForm from '../components/CreateForm';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function CreateProductPage() {
   const navigate = useNavigate();
@@ -9,7 +9,7 @@ function CreateProductPage() {
     try {
       await productApi.addNewProduct(data);
       // console.log(response);
-      navigate('/product');
+      navigate('/products');
       toast.success('Thêm sản phẩm thành công', {
         autoClose: 3000,
       });
@@ -20,11 +20,18 @@ function CreateProductPage() {
     }
   };
   return (
-    <div className="px-5 py-5">
-      <h1 className="border-gray border-b border-solid pb-5 text-xl font-medium uppercase">
-        Thêm sản phẩm
+    <div>
+      <h1 className="text-sm font-light">
+        <Link
+          to="/products"
+          className="text-gray-400 transition-colors hover:text-blue-500"
+        >
+          Sản phẩm{' '}
+        </Link>
+        / Thêm sản phẩm
       </h1>
-      <div className="py-5">
+      <hr className="my-5"></hr>
+      <div>
         <CreateProductForm onSubmit={handleCreateProduct} />
       </div>
     </div>

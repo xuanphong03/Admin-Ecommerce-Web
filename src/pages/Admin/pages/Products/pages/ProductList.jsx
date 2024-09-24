@@ -73,7 +73,7 @@ function ProductsList() {
       _page: page,
     };
     setPagination((prev) => ({ ...prev, page }));
-    navigate(`/product?${queryString.stringify(filters)}`);
+    navigate(`/products?${queryString.stringify(filters)}`);
     window.scrollTo({
       top: 0,
       left: 0,
@@ -82,11 +82,11 @@ function ProductsList() {
 
   return (
     <Fragment>
-      <section className="relative px-5 py-2">
+      <section className="relative">
         <button className="mb-5">
           <Link
-            to="/product/create_product"
-            className="bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
+            to="/products/create_product"
+            className="block bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
           >
             Thêm sản phẩm
           </Link>
@@ -124,84 +124,85 @@ function ProductsList() {
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {productsList.length > 0 &&
-                productsList.map(
-                  (
-                    {
-                      id,
-                      imageMain,
-                      name,
-                      finalPrice,
-                      category,
-                      quantitySold,
-                      totalQuantity,
-                      description,
-                    },
-                    index,
-                  ) => (
-                    <tr
-                      key={uuidv4()}
-                      className="border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800"
-                    >
-                      <td className="px-6 py-4">
-                        {index + 1 + (pagination.page - 1) * 10}
-                      </td>
-                      <td className="px-6 py-4">
-                        <img
-                          className="size-10"
-                          alt="product image"
-                          src={imageMain}
-                        />
-                      </td>
-                      <th
-                        scope="row"
-                        className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
-                      >
-                        <h4 className="w-60">{name}</h4>
-                      </th>
-                      <td className="px-6 py-4">{category}</td>
 
-                      <td className="px-6 py-4">
-                        {formatPrice(finalPrice, 'VNĐ')}
-                      </td>
-                      <td className="px-6 py-4">
-                        <p className="w-60">{description}</p>
-                      </td>
-                      <td className="px-6 py-4">
-                        <p
-                          className={`${totalQuantity - quantitySold > 0 ? 'text-green-500' : 'text-red-500'} `}
-                        >
-                          {totalQuantity - quantitySold > 0
-                            ? 'Còn hàng'
-                            : 'Hết hàng'}
-                        </p>
-                        {totalQuantity - quantitySold > 0 && (
-                          <span>({totalQuantity - quantitySold})</span>
+            <tbody>
+              {productsList.map((product, index) => {
+                const key = uuidv4();
+                const {
+                  id,
+                  imageMain,
+                  name,
+                  finalPrice,
+                  category,
+                  quantitySold,
+                  totalQuantity,
+                  description,
+                } = product;
+                const quantityInStock = totalQuantity - quantitySold;
+                const isAvailable = quantityInStock > 0;
+                return (
+                  <tr
+                    key={key}
+                    className="border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800"
+                  >
+                    <td className="px-6 py-4">
+                      {index + 1 + (pagination.page - 1) * 10}
+                    </td>
+                    <td className="px-6 py-4">
+                      <img
+                        className="size-10"
+                        alt="product image"
+                        src={imageMain}
+                      />
+                    </td>
+                    <th
+                      scope="row"
+                      className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+                    >
+                      <h4 className="w-60">{name}</h4>
+                    </th>
+                    <td className="px-6 py-4">{category}</td>
+
+                    <td className="px-6 py-4">
+                      {formatPrice(finalPrice, 'VNĐ')}
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="w-60">{description}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p
+                        className={`${totalQuantity - quantitySold > 0 ? 'text-green-500' : 'text-red-500'} `}
+                      >
+                        {isAvailable ? 'Còn hàng' : 'Hết hàng'}{' '}
+                        {isAvailable && (
+                          <span className="text-gray-700">
+                            ({quantityInStock})
+                          </span>
                         )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <Link
-                          to={`/product/${id}`}
-                          className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                        >
-                          Chi tiết
-                        </Link>
-                      </td>
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => {
-                            setIsDeleting(true);
-                            setDeletingProductId(id);
-                          }}
-                          className="font-medium text-red-600 hover:underline dark:text-red-500"
-                        >
-                          Xóa
-                        </button>
-                      </td>
-                    </tr>
-                  ),
-                )}
+                      </p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Link
+                        to={`/products/${id}`}
+                        className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                      >
+                        Xem
+                      </Link>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => {
+                          setIsDeleting(true);
+                          setDeletingProductId(id);
+                        }}
+                        className="font-medium text-red-600 hover:underline dark:text-red-500"
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

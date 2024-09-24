@@ -6,7 +6,7 @@ import PieChart from '~/components/Charts/PieChart';
 import { formatPrice } from '~/utils/formatCurrency';
 function DashboardPage() {
   return (
-    <div className="bg-slate-50 py-10">
+    <div className="">
       <div className="mb-10 flex gap-10 px-5">
         <div className="flex min-w-80 gap-4 overflow-hidden rounded bg-white shadow-xl">
           <div className="flex size-20 items-center justify-center bg-sky-400 text-4xl text-white">

@@ -11,6 +11,7 @@ import QuestionAndAnswer from './pages/QA';
 import StylePage from './pages/Style';
 import MaterialPage from './pages/Material';
 import OrdersPage from './pages/Orders';
+import Sidebar from './components/Sidebar';
 AdminPage.propTypes = {};
 
 function AdminPage() {
@@ -23,25 +24,17 @@ function AdminPage() {
   };
   return (
     <div className="">
-      <aside className="fixed bottom-0 left-0 top-0 w-[250px] bg-neutral-800 px-2 py-4 text-white">
-        <Navbar />
-        <button
-          onClick={handleLogoutAccount}
-          className="absolute bottom-0 left-0 right-0 h-10 bg-blue-600 hover:bg-blue-500"
-        >
-          Đăng xuất
-        </button>
-      </aside>
-      <main className="ml-auto h-screen w-[calc(100%-250px)]">
+      <Sidebar onLogout={handleLogoutAccount} />
+      <main className="ml-auto h-screen w-[calc(100%-250px)] bg-white py-5 pl-10 pr-5">
         <Routes>
           <Route path="/" element={<DashboardPage />} />
-          <Route path="/product/*" element={<ProductPage />} />
+          <Route path="/products/*" element={<ProductPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
-          <Route path="/tradeMask" element={<TradeMaskPage />} />
-          <Route path="/style" element={<StylePage />} />
+          {/* <Route path="/tradeMask" element={<TradeMaskPage />} />
+          <Route path="/style" element={<StylePage />} /> */}
           <Route path="/orders/*" element={<OrdersPage />} />
-          <Route path="/material" element={<MaterialPage />} />
-          <Route path="/support/qa" element={<QuestionAndAnswer />} />
+          {/* <Route path="/material" element={<MaterialPage />} /> */}
+          <Route path="/support" element={<QuestionAndAnswer />} />
         </Routes>
       </main>
       <Chatroom />

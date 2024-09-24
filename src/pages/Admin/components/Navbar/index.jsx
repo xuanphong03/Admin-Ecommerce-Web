@@ -57,7 +57,7 @@ function Navbar() {
   return (
     <nav>
       <ul className="text-sm">
-        {NavList.map((navItem) => {
+        {/* {NavList.map((navItem) => {
           if (navItem.children) {
             return (
               <li className="mb-1 p-2" key={uuidv4()}>
@@ -93,7 +93,7 @@ function Navbar() {
               </NavLink>
             </li>
           );
-        })}
+        })} */}
       </ul>
     </nav>
   );
