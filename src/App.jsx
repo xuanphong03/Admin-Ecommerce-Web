@@ -11,7 +11,7 @@ function App() {
     <div className="font-roboto">
       {authenticated && <AdminPage />}
       {!authenticated && <AuthenticationPage />}
-      <ToastContainer />
+      <ToastContainer autoClose={2000} closeOnClick={true} />
     </div>
   );
 }

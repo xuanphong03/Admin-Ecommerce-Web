@@ -81,7 +81,7 @@ function CategoriesPage() {
 
   return (
     <>
-      <section className="relative px-5 py-2">
+      <section className="relative">
         <div className="mb-5">
           <button
             onClick={() => {
