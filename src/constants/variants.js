@@ -8,5 +8,8 @@ export const COLORS = [
   { value: 'Đỏ', name: 'Đỏ' },
   { value: 'Xám', name: 'Xám' },
   { value: 'Trắng', name: 'Trắng' },
-  { value: 'Đen', name: 'Đen' },
+  { value: 'Cam', name: 'Cam' },
+  { value: 'Hồng', name: 'Hồng' },
+  { value: 'Xanh', name: 'Xanh' },
+  { value: 'Be', name: 'Be' },
 ];

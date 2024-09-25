@@ -8,18 +8,17 @@ PieChart.propTypes = {};
 
 function PieChart(props) {
   const barChartData = {
-    labels: ['Đang xử lý', 'Đang giao hàng', 'Đã giao hàng', 'Đã hủy'],
+    labels: ['Đang xử lý', 'Đang giao hàng', 'Đã giao hàng'],
     datasets: [
       {
         label: 'Thống kê trạng thái đơn hàng',
-        data: [1200, 300, 150, 100],
+        data: [1200, 300, 150],
         backgroundColor: [
           'rgba(153,250,134,0.9)',
           'rgba(235,158,102,0.9)',
           'rgba(130,184,230,0.9)',
-          'rgba(67,66,71,0.9)',
         ],
-        hoverOffset: 4,
+        hoverOffset: 3,
       },
     ],
   };

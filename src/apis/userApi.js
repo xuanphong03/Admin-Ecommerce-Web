@@ -10,6 +10,11 @@ const userApi = {
     const url = '/auth/register';
     return axiosClient.post(url, data);
   },
+
+  registerAccountRoleAdmin(data) {
+    const url = '/admin/add-admin';
+    return axiosClient.post(url, data);
+  },
 };
 
 export default userApi;

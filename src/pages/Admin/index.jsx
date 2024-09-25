@@ -1,17 +1,14 @@
 import { useDispatch } from 'react-redux';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { logout } from '../Auth/userSlice';
-import Navbar from './components/Navbar';
-import CategoriesPage from './pages/Categories';
-import TradeMaskPage from './pages/TradeMask';
-import DashboardPage from './pages/Dashboard';
-import ProductPage from './pages/Products';
-import Chatroom from './pages/Chat/Chatroom';
-import QuestionAndAnswer from './pages/QA';
-import StylePage from './pages/Style';
-import MaterialPage from './pages/Material';
-import OrdersPage from './pages/Orders';
 import Sidebar from './components/Sidebar';
+import CategoriesPage from './pages/Categories';
+import Chatroom from './pages/Chat/Chatroom';
+import DashboardPage from './pages/Dashboard';
+import OrdersPage from './pages/Orders';
+import ProductPage from './pages/Products';
+import QuestionAndAnswer from './pages/QA';
+import UsersPage from './pages/Users';
 AdminPage.propTypes = {};
 
 function AdminPage() {
@@ -30,11 +27,9 @@ function AdminPage() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/products/*" element={<ProductPage />} />
           <Route path="/categories" element={<CategoriesPage />} />
-          {/* <Route path="/tradeMask" element={<TradeMaskPage />} />
-          <Route path="/style" element={<StylePage />} /> */}
           <Route path="/orders/*" element={<OrdersPage />} />
-          {/* <Route path="/material" element={<MaterialPage />} /> */}
           <Route path="/support" element={<QuestionAndAnswer />} />
+          <Route path="/users" element={<UsersPage />} />
         </Routes>
       </main>
       <Chatroom />

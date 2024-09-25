@@ -21,15 +21,23 @@ function CreateProductPage() {
   };
   return (
     <div>
-      <h1 className="text-sm font-light">
-        <Link
-          to="/products"
-          className="text-gray-400 transition-colors hover:text-blue-500"
+      <div className="flex items-center justify-between">
+        <h1 className="text-sm font-light">
+          <Link
+            to="/products"
+            className="text-gray-400 transition-colors hover:text-blue-500"
+          >
+            Sản phẩm{' '}
+          </Link>
+          / Thêm sản phẩm
+        </h1>
+        <button
+          className="rounded bg-blue-500 px-4 py-2 text-sm text-white"
+          onClick={() => history.back()}
         >
-          Sản phẩm{' '}
-        </Link>
-        / Thêm sản phẩm
-      </h1>
+          Quay lại
+        </button>
+      </div>
       <hr className="my-5"></hr>
       <div>
         <CreateProductForm onSubmit={handleCreateProduct} />

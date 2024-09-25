@@ -1,184 +1,111 @@
-import * as yup from 'yup';
-import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import StorageKeys from '~/constants/storage-key';
-import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
+import * as yup from 'yup';
+import questionAnswerAdmin from '~/apis/questionAnswerAdmin';
 import InputField from '~/components/form-controls/InputField';
 import TextAreaField from '~/components/form-controls/TextAreaField';
-import { useEffect, useState } from 'react';
+import { getFirstCharacterOfName } from '~/utils';
 
-QuestionAndAnswer.propTypes = {};
-
-function QuestionAndAnswer(props) {
-  // ------------------------------------------------------------------------------------------
-  const token = localStorage.getItem(StorageKeys.TOKEN) || '';
-  const [newOptions, setNewOptions] = useState([]);
-  const [inputFilter2, setInputFilter2] = useState('');
-  const [filteredOptions2, setFilteredOptions2] = useState([]);
-
-  const normalizeString = (str) => {
-    if (typeof str === 'string') {
-      return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    }
-    console.error('Expected a string, but got:', typeof str);
-    return '';
-  };
-
-  const handleInputChange2 = (e) => {
-    setInputFilter2(e.target.value);
-  };
-
-  const fetchOptions2 = async () => {
-    try {
-      const response = await fetch(
-        'http://localhost:8080/api/v1/rest/getAllQuestionsOfGuestInfor',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      const data = await response.json();
-      console.log(data);
-
-      setNewOptions(data);
-    } catch (error) {
-      console.error('Error fetching options:', error);
-    }
-  };
-
-  useEffect(() => {
-    const normalizedFilter2 = normalizeString(inputFilter2);
-    setFilteredOptions2(
-      newOptions.filter(
-        (option) =>
-          normalizeString(option.name)
-            .toLowerCase()
-            .includes(normalizedFilter2.toLowerCase()) ||
-          normalizeString(option.email)
-            .toLowerCase()
-            .includes(normalizedFilter2.toLowerCase()) ||
-          normalizeString(option.phone)
-            .toLowerCase()
-            .includes(normalizedFilter2.toLowerCase()) ||
-          normalizeString(option.question)
-            .toLowerCase()
-            .includes(normalizedFilter2.toLowerCase()),
-      ),
-    );
-  }, [inputFilter2, newOptions]);
-  // ----------------------------------------------------------------------
-  const createQuestionAnswerOfGuest = async (questionAnswer, token) => {
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/v1/rest/qa-answer-guest`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(questionAnswer),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error creating question answer of guest:', error);
-      throw error;
-    }
-  };
-  // ----------------------------------------------------------------------
-  const [userInfo, setUserInfo] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    question: '',
-    answer: '',
-  });
-
+function QuestionAndAnswer() {
   const schema = yup.object().shape({
-    name: yup.string().required('Vui lòng nhập họ tên người dùng.'),
-    email: yup.string().required('Vui lòng nhập email người dùng.'),
-    phone: yup.string().required('Vui lòng nhập số điện thoại người dùng'),
-    question: yup.string().required('Vui lòng nhập câu hỏi'),
+    name: yup.string().required(''),
+    email: yup.string().required(''),
+    phone: yup.string().required(''),
+    question: yup.string().required(''),
     answer: yup.string().required('Vui lòng nhập câu trả lời'),
   });
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResult, setSearchResult] = useState([]);
+  const [customerQuestions, setCustomerQuestions] = useState([]);
+  const [isAnsweringQuestion, setIsAnsweringQuestion] = useState(false);
 
   const {
     handleSubmit,
     register,
     reset,
-    formState: { errors },
+    setValue,
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
-    defaultValues: {
-      name: userInfo.name || '',
-      email: userInfo.email || '',
-      phone: userInfo.phone || '',
-      question: userInfo.question || '',
-      answer: userInfo.answer || '',
-    },
   });
 
+  const getCustomerQuestions = async () => {
+    try {
+      const response = await questionAnswerAdmin.getAll();
+      setSearchResult(response);
+      setCustomerQuestions(response);
+    } catch (error) {
+      throw new Error('Failed to get question list');
+    }
+  };
+
+  const normalizeString = (str) => {
+    return str.trim().toLowerCase();
+  };
+
+  const handleSearchTermChange = (e) => {
+    const searchValue = e.target.value;
+    setSearchTerm(searchValue);
+    const newSearchResult = customerQuestions.filter(
+      ({ name, email, phone }) =>
+        normalizeString(name).includes(normalizeString(searchValue)) ||
+        normalizeString(email).includes(normalizeString(searchValue)) ||
+        normalizeString(phone).includes(normalizeString(searchValue)),
+    );
+    setSearchResult(newSearchResult);
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        fetchOptions2();
-      } catch (error) {
-        console.error('Failed to fetch questions', error);
-      }
-    })();
+    getCustomerQuestions();
   }, []);
 
-  const handleOptionClick2 = (option) => {
-    const newUserInfo = {
-      name: option.name,
-      email: option.email,
-      phone: option.phone,
-      question: option.question,
-      answer: '',
-    };
-    setUserInfo(newUserInfo);
-    reset(newUserInfo);
-    setInputFilter2('');
+  const handleAnswerCustomer = (option) => {
+    setIsAnsweringQuestion(true);
+    const { name, email, phone, question, answer } = option;
+    setValue('name', name);
+    setValue('email', email);
+    setValue('phone', phone);
+    setValue('question', question);
+    setValue('answer', answer);
+    setSearchTerm('');
   };
 
   const handleSubmitForm = async (data) => {
     try {
-      const questionAnswer = {
+      await questionAnswerAdmin.answerQuestion({
         question: data.question,
         answer: data.answer,
-      };
-      const response = await createQuestionAnswerOfGuest(questionAnswer, token);
-      console.log('Response:', response);
+      });
+      toast.success('Câu trả lời đã được gửi đi');
+      reset();
+      getCustomerQuestions();
     } catch (error) {
-      console.error('Failed to submit form:', error);
+      toast.error('Opps...Câu trả lời chưa thể gửi đi');
+      throw new Error('Failed to post answer');
+    } finally {
+      setIsAnsweringQuestion(false);
     }
   };
 
   return (
-    <main className="items-center px-20 py-20">
-      <h1 className="bold mb-5 text-2xl font-medium uppercase italic">
-        Phản hồi khách hàng
-      </h1>
+    <main className="items-center">
+      <h1 className="text-sm text-gray-950">Hỗ trợ khách hàng</h1>
+      <hr className="my-5"></hr>
       <section className="flex gap-5">
         <form
           onSubmit={handleSubmit(handleSubmitForm)}
-          className="-mx-2 flex max-w-[65%] basis-3/4 flex-wrap"
+          className="relative flex max-w-[75%] basis-3/4 flex-wrap rounded border border-solid border-gray-200 p-2"
         >
           <div className="max-w-[33.3333%] basis-1/3">
             <div className="px-2">
               <InputField
                 label="Tên khách hàng"
-                placeholder="Nhập tên khách hàng"
+                placeholder="Tên khách hàng"
                 register={{ ...register('name') }}
-                errorMessage={errors.name?.message}
                 readOnly={true}
               />
             </div>
@@ -187,9 +114,8 @@ function QuestionAndAnswer(props) {
             <div className="px-2">
               <InputField
                 label="Email khách hàng"
-                placeholder="Nhập email khách hàng"
+                placeholder="Email khách hàng"
                 register={{ ...register('email') }}
-                errorMessage={errors.email?.message}
                 readOnly={true}
               />
             </div>
@@ -198,9 +124,8 @@ function QuestionAndAnswer(props) {
             <div className="px-2">
               <InputField
                 label="Số điện thoại khách hàng"
-                placeholder="Nhập số điện thoại khách hàng"
+                placeholder="Số điện thoại khách hàng"
                 register={{ ...register('phone') }}
-                errorMessage={errors.phone?.message}
                 readOnly={true}
               />
             </div>
@@ -209,9 +134,8 @@ function QuestionAndAnswer(props) {
             <div className="px-2">
               <TextAreaField
                 label="Câu hỏi của khách hàng"
-                placeholder="Nhập câu hỏi của khách hàng"
+                placeholder="Câu hỏi của khách hàng"
                 register={{ ...register('question') }}
-                errorMessage={errors.question?.message}
                 readOnly={true}
               />
             </div>
@@ -227,59 +151,56 @@ function QuestionAndAnswer(props) {
               />
             </div>
           </div>
-          <div className="my-5 flex px-2">
-            <button className="rounded bg-blue-500 px-5 py-2 text-sm text-white transition-colors hover:bg-blue-400">
-              Gửi câu trả lời
+          <div className="absolute -bottom-12 left-0 flex px-2">
+            <button
+              className={`rounded px-5 py-2 text-sm text-white transition-colors ${isSubmitting ? 'cursor-not-allowed bg-blue-400' : 'cursor-pointer bg-blue-500 hover:bg-blue-400'} ${isAnsweringQuestion ? '' : 'pointer-events-none bg-blue-200'}`}
+            >
+              {isSubmitting ? 'Đang gửi yêu cầu...' : 'Gửi câu trả lời'}
             </button>
           </div>
         </form>
         <div className="max-w-[35%] basis-3/4">
-          <div className="h-[86%] overflow-hidden rounded border border-solid py-2 text-sm font-medium">
-            <h2 className="bold border-b border-solid pb-2 text-center italic">
+          <div className="h-[100%] overflow-hidden rounded border border-solid py-2 text-sm">
+            <h2 className="border-b border-solid pb-2 text-center text-sm text-gray-950">
               Danh sách câu hỏi từ khách hàng
             </h2>
             <ul className="px-4 py-2">
-              <div
-                className="overflow-auto rounded border border-gray-300 bg-white shadow-lg"
-                style={{
-                  top: '100%',
-                  left: '0',
-                  maxHeight: '502px',
-                }}
-              >
+              <div className="bg-white">
                 <input
                   type="text"
-                  value={inputFilter2}
-                  onChange={handleInputChange2}
-                  className="w-full border-b border-gray-300 px-2 py-1 text-sm"
+                  value={searchTerm}
+                  onChange={handleSearchTermChange}
+                  className="w-full rounded-sm border border-solid border-gray-300 px-3 py-2 text-sm outline-none"
                   placeholder="Tìm kiếm..."
                 />
-                <ul>
-                  {filteredOptions2.map((option, index) => (
-                    <li
-                      key={index}
-                      className="flex cursor-pointer items-center gap-4 px-4 py-2 hover:bg-gray-300"
-                      onClick={() => handleOptionClick2(option)}
-                    >
-                      <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-full">
-                        <img
-                          src={option.user_img_url}
-                          className="h-full w-full object-cover"
-                          alt={`Option ${index}`}
-                        />
-                      </div>
-                      <div className="ml-4 flex flex-col">
-                        <p className="text-xs">Name: {option.name}</p>
-                        <p className="font-family: Serif text-xs">
-                          Email: {option.email}
-                        </p>
-                        <p className="Serif text-xs">Phone : {option.phone}</p>
-                        <p className="Serif text-sm text-orange-700">
-                          Question: {option.question}
-                        </p>
-                      </div>
+                <ul className="mt-2 h-[400px]">
+                  {searchResult.length > 0 ? (
+                    searchResult.map((option) => {
+                      const firstCharacterOfName = getFirstCharacterOfName(
+                        option.name,
+                      );
+                      return (
+                        <li
+                          key={uuidv4()}
+                          className="flex cursor-pointer items-center gap-2 border-b border-solid border-gray-300 px-4 py-2 hover:bg-gray-300"
+                          onClick={() => handleAnswerCustomer(option)}
+                        >
+                          <div className="flex size-14 items-center justify-center rounded-full bg-red-500 text-2xl font-bold text-white">
+                            {firstCharacterOfName}
+                          </div>
+                          <div className="ml-4 flex flex-col font-normal">
+                            <p className="">Họ và tên: {option.name}</p>
+                            <p className="">Email: {option.email}</p>
+                            <p className="">Số điện thoại : {option.phone}</p>
+                          </div>
+                        </li>
+                      );
+                    })
+                  ) : (
+                    <li className="px-4 py-5 text-center">
+                      Không có bất kỳ câu hỏi nào
                     </li>
-                  ))}
+                  )}
                 </ul>
               </div>
             </ul>

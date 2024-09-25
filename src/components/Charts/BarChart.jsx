@@ -23,11 +23,11 @@ BarChart.propTypes = {};
 
 function BarChart(props) {
   const barChartData = {
-    labels: ['Đang xử lý', 'Đang giao hàng', 'Đã giao hàng', 'Đã hủy'],
+    labels: ['Đang xử lý', 'Đang giao hàng', 'Đã giao hàng'],
     datasets: [
       {
         label: 'Thống kê trạng thái đơn hàng',
-        data: [1200, 300, 150, 100],
+        data: [1200, 300, 150],
       },
     ],
   };
