@@ -5,15 +5,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 import productApi from '~/apis/productApi';
+import { useDebounce } from '~/hooks/useDebounce';
 import { formatPrice } from '~/utils/formatCurrency';
 import DeleteForm from '../components/DeleteForm';
 
 function ProductsList() {
   const navigate = useNavigate();
-
+  const [searchTerm, setSearchTerm] = useState('');
   const [productsList, setProductsList] = useState([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deletingProductId, setDeletingProductId] = useState(null);
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const queryParams = useMemo(() => {
     const params = queryString.parse(location.search);
@@ -32,24 +34,39 @@ function ProductsList() {
     total: 0,
   });
 
+  const sortProducts = (products) => {
+    return products.sort((productA, productB) => {
+      if (productA.id > productB.id) {
+        return -1;
+      } else if (productA.id < productB.id) {
+        return 1;
+      }
+      return 0;
+    });
+  };
+
   const fetchProducts = async () => {
     try {
-      const { data, pagination } = await productApi.getAllProducts(queryParams);
-      setProductsList(data);
+      const { data, pagination } = await productApi.getAllProducts({
+        ...queryParams,
+        productName: debouncedSearchTerm,
+      });
+      const sortedData = sortProducts(data);
+      setProductsList(sortedData);
       setPagination((prev) => ({
         ...prev,
         total: pagination._total,
         page: queryParams._page || 1,
       }));
     } catch (error) {
-      // console.error(error);
+      throw new Error('Failed to get products');
     }
   };
 
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryParams]);
+  }, [queryParams, debouncedSearchTerm]);
 
   const handleDeleteProduct = async (id) => {
     try {
@@ -82,17 +99,32 @@ function ProductsList() {
     });
   };
 
+  const handleSearchTermChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <Fragment>
       <section className="relative">
-        <button className="mb-5">
-          <Link
-            to="/products/create_product"
-            className="block rounded bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
-          >
-            Thêm sản phẩm
-          </Link>
-        </button>
+        <div className="mb-5 flex items-center justify-between">
+          <div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={handleSearchTermChange}
+              placeholder="Tìm kiếm sản phẩm..."
+              className="w-80 rounded border border-solid border-gray-400 px-3 py-2 text-sm outline-none"
+            />
+          </div>
+          <button>
+            <Link
+              to="/products/create_product"
+              className="block rounded bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
+            >
+              Thêm sản phẩm
+            </Link>
+          </button>
+        </div>
         <div className="relative overflow-x-auto rounded border border-solid border-gray-300">
           <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
             <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">

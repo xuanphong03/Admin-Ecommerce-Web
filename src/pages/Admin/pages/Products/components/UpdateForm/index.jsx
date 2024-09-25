@@ -145,6 +145,7 @@ function UpdateProductForm({ productId, onSubmit }) {
     formData.append(
       'productDtos',
       JSON.stringify({
+        id: productId,
         name: productInfo.name,
         description: productInfo.description,
         category: productInfo.category,
@@ -159,7 +160,7 @@ function UpdateProductForm({ productId, onSubmit }) {
       }),
     );
     console.log(productInfo.name);
-    console.log(mainImage);
+    console.log(productId);
     if (onSubmit) {
       await onSubmit(formData);
     }

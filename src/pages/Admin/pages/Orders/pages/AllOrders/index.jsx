@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
 import orderApi from '~/apis/orderApi';
-import { formatPrice } from '~/utils/formatCurrency';
+import OrderItem from '../OrderItem';
 
 function AllOrdersPage() {
   const [orderList, setOrderList] = useState([]);
@@ -9,9 +11,41 @@ function AllOrdersPage() {
   const getOrderList = async () => {
     try {
       const response = await orderApi.getAll();
-      console.log(response);
+      const reversedOrderList = response.reverse();
+
+      if (!filterByStatus) {
+        setOrderList(reversedOrderList);
+      } else if (filterByStatus === 'Đang xử lý') {
+        const orders = reversedOrderList?.filter(
+          ({ orderStatus }) => !orderStatus,
+        );
+        setOrderList(orders);
+      } else {
+        const orders = reversedOrderList?.filter(
+          ({ orderStatus }) => orderStatus === filterByStatus,
+        );
+        setOrderList(orders);
+      }
     } catch (error) {
       throw new Error('Failed to get order list');
+    }
+  };
+
+  const updateOrderStatus = async (id, status) => {
+    try {
+      const updatingOrder = orderList.find((order) => order.id === id);
+      await orderApi.update(1, {
+        address: updatingOrder.address,
+        phoneNumber: updatingOrder.phoneNumber,
+        emailAddress: updatingOrder.emailAddress,
+        paymentStatus: updatingOrder.paymentStatus,
+        orderStatus: status,
+      });
+      toast.success('Thay đổi trạng thái đơn hàng thành công');
+      getOrderList();
+    } catch (error) {
+      toast.success('Thay đổi trạng thái đơn hàng thất bại');
+      throw new Error('Failed update order');
     }
   };
 
@@ -22,7 +56,8 @@ function AllOrdersPage() {
 
   useEffect(() => {
     getOrderList();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterByStatus]);
 
   return (
     <div>
@@ -73,39 +108,29 @@ function AllOrdersPage() {
             </tr>
           </thead>
           <tbody>
-            <tr className="border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800">
-              <td className="px-6 py-4">1</td>
-              <th
-                scope="row"
-                className="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
-              >
-                Nguyễn Xuân Phong
-              </th>
-              <td className="px-6 py-4">0865783359</td>
-              <td className="px-6 py-4">10/06/2003</td>
-              <td className="px-6 py-4">{formatPrice(100000000, 'VNĐ')}</td>
-              <td className="px-6 py-4">Đang xử lý</td>
-              <td className="flex items-center gap-2 px-6 py-4">
-                <select className="rounded-sm border border-solid border-gray-500 p-1 outline-none">
-                  <option value="Đang xử lý">Đang xử lý</option>
-                  <option value="Đang Vận Chuyển">Đang vận chuyển</option>
-                  <option value="Đã Nhận Hàng">Đã nhận hàng</option>
-                </select>
-                <button className="rounded-sm bg-green-500 px-2 py-1 text-white">
-                  Cập nhật
-                </button>
-              </td>
-              <td className="px-6 py-4">
-                <a
-                  href="#"
-                  className="font-medium text-blue-600 hover:underline dark:text-blue-500"
-                >
-                  Chi tiết
-                </a>
-              </td>
-            </tr>
+            {orderList.length > 0 &&
+              orderList.map((orderItem) => {
+                const uniqueKey = uuidv4();
+                return (
+                  <tr
+                    key={uniqueKey}
+                    className="border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800"
+                  >
+                    <OrderItem
+                      orderInfo={orderItem}
+                      {...orderItem}
+                      onUpdate={updateOrderStatus}
+                    />
+                  </tr>
+                );
+              })}
           </tbody>
         </table>
+        {orderList.length === 0 && (
+          <div className="w-full border-b bg-white px-5 py-10 text-center">
+            <p>Không có đơn hàng nào</p>
+          </div>
+        )}
       </div>
     </div>
   );

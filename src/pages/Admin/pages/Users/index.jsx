@@ -3,6 +3,7 @@ import UserList from './UserList';
 import UserForm from './UserForm';
 import { register } from '~/pages/Auth/userSlice';
 import userApi from '~/apis/userApi';
+import { toast } from 'react-toastify';
 
 export const UserContext = createContext();
 
@@ -16,13 +17,24 @@ function UsersPage() {
 
   const handleCreateAccountRoleAdmin = async (data) => {
     try {
+      // eslint-disable-next-line no-unused-vars
       const { retypePassword, ...registerData } = data;
-      const response = await userApi.registerAccountRoleAdmin(registerData);
-      console.log(response);
+      await userApi.registerAccountRoleAdmin(registerData);
+      toast.success('Tạo tài khoản quản trị thành công');
+      setShowForm(false);
     } catch (error) {
+      toast.error('Tạo tài khoản quản trị thất bại');
       throw new Error('Failed to create account role admin');
     }
   };
+
+  // const getUsers = async () => {
+  //   try {
+  //     const response = await
+  //   } catch (error) {
+
+  //   }
+  // }
 
   return (
     <div>
