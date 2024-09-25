@@ -1,21 +1,20 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { useForm } from 'react-hook-form';
-import InputField from '~/components/form-controls/InputField';
-import TextAreaField from '~/components/form-controls/TextAreaField';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { FaSpinner } from 'react-icons/fa6';
-import { toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
+import * as yup from 'yup';
 import categoryApi from '~/apis/categoryApi';
 import CheckboxField from '~/components/form-controls/CheckboxField';
 import ImageField from '~/components/form-controls/ImageField';
-import { v4 as uuidv4 } from 'uuid';
+import InputField from '~/components/form-controls/InputField';
+import TextAreaField from '~/components/form-controls/TextAreaField';
 
 import { COLORS, SIZES } from '~/constants/variants';
 const schema = yup.object().shape({
   name: yup.string().required('Vui lòng nhập tên sản phẩm.'),
-  brand: yup.string().required('Vui lòng nhập chi tiết loại sản phẩm.'),
   description: yup.string().required('Vui lòng nhập mô tả sản phẩm.'),
+  subCategory: yup.string().required('Vui lòng chọn chỉ tiết loại sản phẩm.'),
   category: yup.string().required('Vui lòng chọn loại sản phẩm.'),
   saleDiscountPercent: yup
     .number()
@@ -40,83 +39,52 @@ const schema = yup.object().shape({
     .integer('Giá sản phẩm phải là số nguyên'),
 });
 
-// const styleList = [
-//   { id: 1, name: 'Cổ điển', desc: 'Phong cách cổ điển (Classic Style)' },
-//   { id: 2, name: 'Hiện đại', desc: 'Phong cách hiện đại (Modern Style)' },
-//   { id: 3, name: 'Đường phố', desc: 'Phong cách đường phố (Streetwear Style)' },
-//   { id: 4, name: 'Thể thao', desc: 'Phong cách thể thao (Athleisure Style)' },
-//   { id: 5, name: 'Thanh lịch', desc: 'Phong cách thanh lịch (Elegant Style)' },
-//   { id: 6, name: 'Tối giản', desc: 'Phong cách tối giản (Minimalist Style):' },
-// ];
-
-// const materialList = [
-//   { id: 1, name: 'Cotton', desc: 'Cotton (Vải bông)' },
-//   { id: 2, name: 'Linen ', desc: 'Linen (Vải lanh)' },
-//   { id: 3, name: 'Silk', desc: 'Silk (Vải lụa)' },
-//   { id: 4, name: 'Wool', desc: 'Wool (Vải len)' },
-//   { id: 5, name: 'Polyester', desc: 'Polyester' },
-//   { id: 6, name: 'Velvet', desc: 'Velvet (Vải nhung)' },
-//   { id: 7, name: 'Denim', desc: 'Denim' },
-//   { id: 8, name: 'Leather', desc: 'Leather (Da)' },
-// ];
-
 function CreateProductForm({ onSubmit }) {
-  const [categoriesList, setCategoriesList] = useState([]);
-  const [brandsList, setBrandsList] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
   const [productQuantities, setProductQuantities] = useState([]);
   const [mainImage, setMainImage] = useState(null);
   const [subImageList, setSubImageList] = useState([null, null, null, null]);
   const [isEnoughImages, setIsEnoughImages] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const categoryResponse = await categoryApi.getAll();
-        const _categoryList = categoryResponse.filter(
-          (_category) => _category.status !== 0,
-        );
-        setCategoriesList(_categoryList);
-      } catch (error) {
-        toast.error('API bị lỗi');
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await categoryApi.getAll();
-        const _categoryList = response.filter(
-          (_category) => _category.status !== 0,
-        );
-        setCategoriesList(_categoryList);
-      } catch (error) {
-        toast.error('API Category bị lỗi');
-      }
-    })();
-  }, []);
-
   const {
     handleSubmit,
     register,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
       sizes: [],
       colours: [],
-      saleDiscountPercent: 0,
       originalPrice: 0,
+      saleDiscountPercent: 0,
       style: '',
       category: '',
-      brand: '',
       material: '',
     },
   });
 
   const productColors = watch('colours') || [];
   const productSizes = watch('sizes') || [];
+  // Lấy giá trị category đang được chọn
+  const selectedCategory = watch('category');
+
+  const getCategories = async () => {
+    const response = await categoryApi.getAll();
+    setCategories(response);
+  };
+  useEffect(() => {
+    getCategories();
+  }, []);
+
+  // Khi category thay đổi, update subcategories
+  useEffect(() => {
+    const category = categories.find((cat) => cat.name === selectedCategory);
+    setSubcategories(category ? category.brands : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory]);
 
   useEffect(() => {
     const newQuantities = productSizes.flatMap((size) =>
@@ -162,7 +130,7 @@ function CreateProductForm({ onSubmit }) {
         name: productInfo.name,
         description: productInfo.description,
         category: productInfo.category,
-        subCategory: productInfo.brand,
+        subCategory: productInfo.subCategory,
         tradeMask: productInfo.tradeMask,
         style: productInfo.style,
         material: productInfo.material,
@@ -177,6 +145,7 @@ function CreateProductForm({ onSubmit }) {
       await onSubmit(formData);
     }
   };
+
   const handleOnSelect = (file, type = 'sub', index = 1) => {
     if (type === 'main') {
       setMainImage(file);
@@ -191,16 +160,6 @@ function CreateProductForm({ onSubmit }) {
         return newSubImageList;
       });
     }
-  };
-
-  const handleGetBrandsList = (category) => {
-    const position = categoriesList.findIndex(
-      (_category) => _category.name === category,
-    );
-    if (position !== -1) {
-      return categoriesList[position].brands;
-    }
-    return [];
   };
 
   const updateQuantity = (e, color, size) => {
@@ -238,57 +197,45 @@ function CreateProductForm({ onSubmit }) {
         </div>
         <div className="flex w-80 flex-col gap-1">
           <div className="flex flex-col gap-1 text-sm">
-            <label className="w-fit" htmlFor="category">
-              Loại sản phẩm
-            </label>
+            <label className='w-fit"'>Category</label>
             <select
-              {...register('category', {
-                onChange: (e) => {
-                  const newCategory = e.target.value;
-                  const newBrandList = handleGetBrandsList(newCategory);
-                  setBrandsList(newBrandList);
-                },
-              })}
-              id="category"
               className="border-gray w-full rounded border border-solid px-3 py-2 text-sm outline-blue-500"
+              {...register('category')}
             >
-              <option value="" disabled>
-                ---Chọn loại sản phẩm---
-              </option>
-              {categoriesList.map((category) => (
-                <option value={category.name} key={uuidv4()}>
+              <option value="">Chọn danh mục</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.name}>
                   {category.name}
                 </option>
               ))}
             </select>
-            {errors.category?.message && (
+            {errors.category && (
               <p className="px-1 text-sm text-red-500">
-                {errors.category?.message}
+                {errors.category.message}
               </p>
             )}
           </div>
         </div>
+
+        {/* Dropdown cho Subcategory */}
         <div className="flex w-80 flex-col gap-1">
           <div className="flex flex-col gap-1 text-sm">
-            <label className="w-fit" htmlFor="brand">
-              Chi tiết loại sản phẩm
-            </label>
+            <label className="w-fit">Subcategory</label>
             <select
-              {...register('brand')}
               className="border-gray w-full rounded border border-solid px-3 py-2 text-sm outline-blue-500"
+              {...register('subCategory')}
+              disabled={!subcategories.length}
             >
-              <option value="" disabled>
-                ---Chọn Chi tiết loại sản phẩm---
-              </option>
-              {brandsList.map((brand) => (
-                <option value={brand} key={uuidv4()}>
-                  {brand}
+              <option value="">Chọn danh mục con</option>
+              {subcategories.map((subcategory, index) => (
+                <option key={index} value={subcategory}>
+                  {subcategory}
                 </option>
               ))}
             </select>
-            {errors.brand?.message && (
+            {errors.subCategory && (
               <p className="px-1 text-sm text-red-500">
-                {errors.brand?.message}
+                {errors.subCategory.message}
               </p>
             )}
           </div>
@@ -296,55 +243,24 @@ function CreateProductForm({ onSubmit }) {
       </div>
 
       <div className="mb-5 flex gap-5 text-sm">
-        {/* <div className="flex w-80 flex-col gap-1">
-          <label htmlFor="style">Phong cách</label>
-          <select
-            {...register('style')}
-            className="block w-full rounded border border-gray-300 p-2"
-          >
-            <option value="" disabled>
-              Chọn phong cách
-            </option>
-            {styleList.map((style) => (
-              <option key={uuidv4()} value={style.name}>
-                {style.desc}
-              </option>
-            ))}
-          </select>
-          {errors.style && (
-            <p className="px-1 text-sm text-red-500">{errors.style?.message}</p>
-          )}
-        </div>
-        <div className="flex w-80 flex-col gap-1">
-          <label htmlFor="material">Chất liệu</label>
-          <select
-            {...register('material')}
-            className="block w-full rounded border border-gray-300 p-2"
-          >
-            <option value="" disabled>
-              Chọn chất liệu
-            </option>
-            {materialList.map((material) => (
-              <option key={uuidv4()} value={material.name}>
-                {material.desc}
-              </option>
-            ))}
-          </select>
-          {errors.material && (
-            <p className="px-1 text-sm text-red-500">
-              {errors.material?.message}
-            </p>
-          )}
-        </div> */}
         <div className="flex w-80 flex-col gap-1">
           <InputField
             id="originalPrice"
             label="Giá sản phẩm"
             errorMessage={errors.originalPrice?.message}
-            register={{ ...register('originalPrice') }}
+            register={{
+              ...register('originalPrice', {
+                onChange: (e) => {
+                  const { value } = e.target;
+                  if (value < 0) {
+                    setValue('originalPrice', 0);
+                  }
+                },
+              }),
+            }}
             required={true}
             type="number"
-            step={100000}
+            step={1000}
             placeholder="Nhập giá sản phẩm"
           />
         </div>
@@ -353,7 +269,18 @@ function CreateProductForm({ onSubmit }) {
             id="saleDiscountPercent"
             label="Phần trăm khuyến mãi"
             errorMessage={errors.saleDiscountPercent?.message}
-            register={{ ...register('saleDiscountPercent') }}
+            register={{
+              ...register('saleDiscountPercent', {
+                onChange: (e) => {
+                  const { value } = e.target;
+                  if (value > 100) {
+                    setValue('saleDiscountPercent', 100);
+                  } else if (value < 0) {
+                    setValue('saleDiscountPercent', 0);
+                  }
+                },
+              }),
+            }}
             required={true}
             type="number"
             step={10}
@@ -443,7 +370,7 @@ function CreateProductForm({ onSubmit }) {
                   }
                   placeholder="Nhập số lượng sản phẩm"
                   min={0}
-                  step={100}
+                  step={50}
                   type="number"
                   className={`border-gray w-full rounded border border-solid px-3 py-2 outline-blue-500`}
                 />

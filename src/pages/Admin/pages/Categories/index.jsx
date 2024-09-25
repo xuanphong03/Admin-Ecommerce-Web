@@ -88,12 +88,12 @@ function CategoriesPage() {
               setOpenForm(true);
               setIsCreating(true);
             }}
-            className="bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
+            className="rounded bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
           >
             Thêm mới loại sản phẩm
           </button>
         </div>
-        <div className="relative overflow-x-auto border border-solid border-gray-300">
+        <div className="relative overflow-x-auto rounded border border-solid border-gray-300">
           <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
             <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
               <tr>

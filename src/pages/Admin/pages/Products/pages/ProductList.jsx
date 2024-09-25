@@ -24,6 +24,7 @@ function ProductsList() {
       _limit: Number.parseInt(params._limit) || 10,
       _sort: params._sort || 'ASC',
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -47,6 +48,7 @@ function ProductsList() {
 
   useEffect(() => {
     fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryParams]);
 
   const handleDeleteProduct = async (id) => {
@@ -86,12 +88,12 @@ function ProductsList() {
         <button className="mb-5">
           <Link
             to="/products/create_product"
-            className="block bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
+            className="block rounded bg-green-600 px-5 py-2 text-sm text-white transition-colors hover:bg-green-500"
           >
             Thêm sản phẩm
           </Link>
         </button>
-        <div className="relative overflow-x-auto border border-solid border-gray-300">
+        <div className="relative overflow-x-auto rounded border border-solid border-gray-300">
           <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
             <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
               <tr>
@@ -143,7 +145,7 @@ function ProductsList() {
                 return (
                   <tr
                     key={key}
-                    className="border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800"
+                    className="h-28 border-b odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800"
                   >
                     <td className="px-6 py-4">
                       {index + 1 + (pagination.page - 1) * 10}
@@ -167,7 +169,7 @@ function ProductsList() {
                       {formatPrice(finalPrice, 'VNĐ')}
                     </td>
                     <td className="px-6 py-4">
-                      <p className="w-60">{description}</p>
+                      <p className="line-clamp-4 w-60">{description}</p>
                     </td>
                     <td className="px-6 py-4">
                       <p

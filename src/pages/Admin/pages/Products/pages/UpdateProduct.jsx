@@ -1,20 +1,17 @@
 import { Link, useParams } from 'react-router-dom';
 import UpdateProductForm from '../components/UpdateForm';
+import productApi from '~/apis/productApi';
+import { toast } from 'react-toastify';
 function UpdateProduct() {
   const { id } = useParams();
 
   const handleUpdateProduct = async (data) => {
-    console.log('handleUpdateProduct', data);
-    // Display the key/value pairs
-    for (var pair of data.entries()) {
-      console.log(pair[0] + ', ' + pair[1]);
+    try {
+      await productApi.updateProduct(data);
+      toast.success('Chỉnh sửa sản phẩm thành công');
+    } catch (error) {
+      toast.error('Chỉnh sửa sản phẩm thất bại');
     }
-    // try {
-    //   await productApi.updateProduct(data);
-    //   toast.success('Chỉnh sửa sản phẩm thành công');
-    // } catch (error) {
-    //   toast.error('Chỉnh sửa sản phẩm thất bại');
-    // }
   };
   const handleBackPrevPage = () => {
     history.back();

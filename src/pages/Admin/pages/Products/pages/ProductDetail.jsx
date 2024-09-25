@@ -53,18 +53,6 @@ function ProductDetail() {
         </div>
         <div className="flex w-full border border-dotted border-black">
           <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
-            Phong Cách
-          </h3>
-          <p className="basis-4/5 px-4 py-2">{product.style}</p>
-        </div>
-        <div className="flex w-full border border-dotted border-black">
-          <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
-            Chất liệu
-          </h3>
-          <p className="basis-4/5 px-4 py-2">{product.material}</p>
-        </div>
-        <div className="flex w-full border border-dotted border-black">
-          <h3 className="flex basis-1/5 border-r border-dotted border-black p-2 font-medium uppercase">
             Mô tả sản phẩm
           </h3>
           <p className="basis-4/5 px-4 py-2">{product.description}</p>

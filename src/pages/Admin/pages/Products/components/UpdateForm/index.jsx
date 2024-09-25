@@ -1,18 +1,17 @@
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { useForm } from 'react-hook-form';
-import InputField from '~/components/form-controls/InputField';
-import TextAreaField from '~/components/form-controls/TextAreaField';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { FaSpinner } from 'react-icons/fa6';
-import { toast } from 'react-toastify';
+import { v4 as uuidv4 } from 'uuid';
+import * as yup from 'yup';
 import categoryApi from '~/apis/categoryApi';
 import CheckboxField from '~/components/form-controls/CheckboxField';
 import ImageField from '~/components/form-controls/ImageField';
-import { v4 as uuidv4 } from 'uuid';
+import InputField from '~/components/form-controls/InputField';
+import TextAreaField from '~/components/form-controls/TextAreaField';
 
-import { COLORS, SIZES } from '~/constants/variants';
 import productApi from '~/apis/productApi';
+import { COLORS, SIZES } from '~/constants/variants';
 const schema = yup.object().shape({
   name: yup.string().required('Vui lòng nhập tên sản phẩm.'),
   brand: yup.string().required('Vui lòng nhập Chi tiết loại sản phẩm.'),
@@ -42,46 +41,6 @@ const schema = yup.object().shape({
 });
 
 function UpdateProductForm({ productId, onSubmit }) {
-  const [categoryList, setCategoryList] = useState([]);
-  const [brandsList, setBrandsList] = useState([]);
-  const [productQuantities, setProductQuantities] = useState([]);
-  const [mainImage, setMainImage] = useState(null);
-  const [subImageList, setSubImageList] = useState([null, null, null, null]);
-
-  const getProductList = async () => {
-    try {
-      const responseProduct = await productApi.getProduct({ id: productId });
-      setValue('name', responseProduct.name);
-      setValue('category', responseProduct.category);
-      setValue('brand', responseProduct.subCategory);
-      setValue('originalPrice', responseProduct.originalPrice);
-      setValue('saleDiscountPercent', responseProduct.saleDiscountPercent);
-      setValue('sizes', responseProduct.sizes);
-      setValue('colours', responseProduct.colours);
-      setValue('description', responseProduct.description);
-      setMainImage(responseProduct.imageMain);
-      setSubImageList(responseProduct.images);
-    } catch (error) {
-      toast.error('API Category bị lỗi');
-    }
-  };
-  const getCategoryList = async () => {
-    try {
-      const responseCategory = await categoryApi.getAll();
-      const newCategoryList = responseCategory.filter(
-        (_category) => _category.status !== 0,
-      );
-      setCategoryList(newCategoryList);
-    } catch (error) {
-      throw new Error('Failed to get category list');
-    }
-  };
-  useEffect(() => {
-    getProductList();
-    getCategoryList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId]);
-
   const {
     handleSubmit,
     register,
@@ -92,26 +51,62 @@ function UpdateProductForm({ productId, onSubmit }) {
     resolver: yupResolver(schema),
   });
 
-  const productColors = watch('colours') || [];
   const productSizes = watch('sizes') || [];
+  const productColors = watch('colours') || [];
+
+  const [productDetail, setProductDetail] = useState(null);
+  const [subCategories, setSubCategories] = useState([]);
+  const [productQuantities, setProductQuantities] = useState([]);
+  const [mainImage, setMainImage] = useState(null);
+  const [subImageList, setSubImageList] = useState([null, null, null, null]);
+
+  const getProductList = async () => {
+    try {
+      const responseProduct = await productApi.getProduct({ id: productId });
+
+      setProductDetail(responseProduct);
+      setValue('name', responseProduct.name);
+      setValue('category', responseProduct.category);
+      setValue('brand', responseProduct.subCategory);
+      setValue('originalPrice', responseProduct.originalPrice);
+      setValue('saleDiscountPercent', responseProduct.saleDiscountPercent);
+      setValue('sizes', responseProduct.sizes);
+      setValue('colours', responseProduct.colours);
+      setValue('description', responseProduct.description);
+      setMainImage(responseProduct.imageMain);
+      setSubImageList(responseProduct.images);
+      setProductQuantities(responseProduct.quantityDetails);
+      getSubcategoryList(responseProduct.category);
+    } catch (error) {
+      throw new Error('Failed to get product');
+    }
+  };
 
   useEffect(() => {
-    const newQuantities = productSizes.flatMap((size) =>
-      productColors.map((color) => ({
-        color,
-        size,
-        quantity:
-          productQuantities.find((q) => q.color === color && q.size === size)
-            ?.quantity || 0, // Default to 0 if not found
-      })),
-    );
-    setProductQuantities(newQuantities);
+    getProductList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productSizes, productColors]);
+  }, [productId]);
+
+  useEffect(() => {
+    // Calculate initialQuantities based on productDetail
+    const quantities = productDetail?.quantityDetails
+      ? productDetail.quantityDetails.flatMap((detail) =>
+          detail.sizes.map((sizeDetail) => ({
+            color: detail.color,
+            size: sizeDetail.size,
+            quantity: sizeDetail.quantity,
+          })),
+        )
+      : [];
+    // Update the state with the calculated quantities
+    setProductQuantities(quantities);
+    // Log or handle initialQuantities as needed
+  }, [productDetail]);
 
   const formSubmit = async (data) => {
     const { colours, sizes, ...productInfo } = data;
     const images = [mainImage, ...subImageList];
+
     const quantityDetails = colours.map((color) => ({
       color,
       sizes: sizes.map((size) => ({
@@ -121,16 +116,32 @@ function UpdateProductForm({ productId, onSubmit }) {
             ?.quantity || 0,
       })),
     }));
+    // const { colours, sizes, ...productInfo } = data;
 
+    // const images = [mainImage, ...subImageList];
+    // if (images.includes(null)) {
+    //   setIsEnoughImages(false);
+    //   return;
+    // } else {
+    //   setIsEnoughImages(true);
+    // }
     const formData = new FormData();
+    // console.log(images.size);
 
+    // for (let i = 0; i < images.length; i++) {
+    //   if (typeof images[i] === 'object' && images[i] !== null) {
+    //     formData.append('images', images[i]?.name);
+    //     // console.log(images[i]?.name);
+    //   } else {
+    //     formData.append('images', images[i]);
+    //     // console.log(images[i]?.name);
+    //   }
+    // }
+    // const formData = new FormData();
     for (let i = 0; i < images.length; i++) {
-      if (typeof images[i] === 'object' && images[i] !== null) {
-        formData.append('images', images[i]?.name);
-      } else {
-        formData.append('images', images[i]);
-      }
+      formData.append('images', images[i]);
     }
+
     formData.append(
       'productDtos',
       JSON.stringify({
@@ -144,10 +155,11 @@ function UpdateProductForm({ productId, onSubmit }) {
         originalPrice: productInfo.originalPrice,
         saleDiscountPercent: productInfo.saleDiscountPercent,
         quantityDetails: quantityDetails,
-        imageMain: mainImage,
+        imageMain: mainImage.name,
       }),
     );
-
+    console.log(productInfo.name);
+    console.log(mainImage);
     if (onSubmit) {
       await onSubmit(formData);
     }
@@ -168,11 +180,16 @@ function UpdateProductForm({ productId, onSubmit }) {
     }
   };
 
-  const handleGetBrandsList = (categoryName) => {
-    const currentCategory = categoryList.find(
+  const getSubcategoryList = async (categoryName) => {
+    const categoryList = await categoryApi.getAll();
+    const curCategory = categoryList.find(
       (category) => category.name === categoryName,
     );
-    return currentCategory ? currentCategory.brands : [];
+    if (curCategory) {
+      setSubCategories(curCategory.brands);
+    } else {
+      setSubCategories([]);
+    }
   };
 
   const updateQuantity = (e, color, size) => {
@@ -210,42 +227,16 @@ function UpdateProductForm({ productId, onSubmit }) {
         </div>
         <div className="flex w-80 flex-col gap-1">
           <div className="flex flex-col gap-1 text-sm">
-            <label className="w-fit" htmlFor="category">
-              Loại sản phẩm
-            </label>
-            <select
-              // {...register('category', {
-              //   onChange: async (e) => {
-              //     const newCategory = e.target.value;
-              //     const newBrandList = await handleGetBrandsList(newCategory);
-              //     setBrandsList(newBrandList);
-              //     console.log();
-              //   },
-              // })}
-              {...register('category', {
-                onChange: (e) => {
-                  const newCategory = e.target.value;
-                  const newBrandList = handleGetBrandsList(newCategory);
-                  setBrandsList(newBrandList);
-                },
-              })}
+            <InputField
               id="category"
-              className="border-gray w-full rounded border border-solid px-3 py-2 text-sm outline-blue-500"
-            >
-              <option value="" disabled>
-                ---Chọn loại sản phẩm---
-              </option>
-              {categoryList.map((category) => (
-                <option value={category.name} key={uuidv4()}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            {errors.category?.message && (
-              <p className="px-1 text-sm text-red-500">
-                {errors.category?.message}
-              </p>
-            )}
+              label="Loại sản phẩm"
+              errorMessage={errors.category?.message}
+              register={{ ...register('category') }}
+              autofocus={true}
+              required={true}
+              readOnly
+              placeholder="Nhập loại sản phẩm"
+            />
           </div>
         </div>
         <div className="flex w-80 flex-col gap-1">
@@ -260,8 +251,8 @@ function UpdateProductForm({ productId, onSubmit }) {
               <option value="" disabled>
                 ---Chọn Chi tiết loại sản phẩm---
               </option>
-              {brandsList?.map((brand) => (
-                <option value={brand} key={brand}>
+              {subCategories?.map((brand) => (
+                <option value={brand} key={uuidv4()}>
                   {brand}
                 </option>
               ))}
@@ -284,7 +275,8 @@ function UpdateProductForm({ productId, onSubmit }) {
             register={{ ...register('originalPrice') }}
             required={true}
             type="number"
-            step={100000}
+            step={1000}
+            min={0}
             placeholder="Nhập giá sản phẩm"
           />
         </div>
@@ -296,7 +288,7 @@ function UpdateProductForm({ productId, onSubmit }) {
             register={{ ...register('saleDiscountPercent') }}
             required={true}
             type="number"
-            step={10}
+            min={0}
             placeholder="Nhập phần trăm khuyến mãi"
           />
         </div>
@@ -345,7 +337,7 @@ function UpdateProductForm({ productId, onSubmit }) {
                       ...SIZES.map((size) => ({
                         color: value,
                         size,
-                        quantity: 0, // Default to 1 when added
+                        quantity: 0,
                       })),
                     ]);
                   } else {
@@ -365,10 +357,7 @@ function UpdateProductForm({ productId, onSubmit }) {
         <div className="flex flex-wrap gap-5">
           {productSizes.map((size) =>
             productColors.map((color) => (
-              <div
-                key={`${size}_${color}`}
-                className="flex w-80 flex-col gap-1 text-sm"
-              >
+              <div key={uuidv4()} className="flex w-80 flex-col gap-1 text-sm">
                 <label className="mb-1 w-fit">
                   Số lượng sản phẩm màu {''}
                   <span className="font-medium capitalize">{color}</span>
@@ -386,7 +375,6 @@ function UpdateProductForm({ productId, onSubmit }) {
                   }
                   placeholder="Nhập số lượng sản phẩm"
                   min={0}
-                  step={100}
                   type="number"
                   className={`border-gray w-full rounded border border-solid px-3 py-2 outline-blue-500`}
                 />
