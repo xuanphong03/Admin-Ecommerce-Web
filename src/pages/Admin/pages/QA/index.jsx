@@ -186,7 +186,7 @@ function QuestionAndAnswer() {
                           onClick={() => handleAnswerCustomer(option)}
                         >
                           <div className="flex size-14 items-center justify-center rounded-full bg-red-500 text-2xl font-bold text-white">
-                            {firstCharacterOfName}
+                            {firstCharacterOfName.toUpperCase()}
                           </div>
                           <div className="ml-4 flex flex-col font-normal">
                             <p className="">Họ và tên: {option.name}</p>
