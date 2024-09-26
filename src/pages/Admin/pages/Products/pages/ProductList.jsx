@@ -172,8 +172,7 @@ function ProductsList() {
                   totalQuantity,
                   description,
                 } = product;
-                const quantityInStock = totalQuantity - quantitySold;
-                const isAvailable = quantityInStock > 0;
+
                 return (
                   <tr
                     key={key}
@@ -207,10 +206,10 @@ function ProductsList() {
                       <p
                         className={`${totalQuantity - quantitySold > 0 ? 'text-green-500' : 'text-red-500'} `}
                       >
-                        {isAvailable ? 'Còn hàng' : 'Hết hàng'}{' '}
-                        {isAvailable && (
+                        {totalQuantity > 0 ? 'Còn hàng' : 'Hết hàng'}{' '}
+                        {totalQuantity > 0 && (
                           <span className="text-gray-700">
-                            ({quantityInStock})
+                            ({totalQuantity})
                           </span>
                         )}
                       </p>
