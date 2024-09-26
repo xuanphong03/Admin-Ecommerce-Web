@@ -74,7 +74,7 @@ function CreateCategoryForm({ onSubmit }) {
         onSubmit={handleSubmit(formSubmit)}
         className="flex flex-col justify-between"
       >
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-5">
           <InputField
             id="sku"
             label="Mã loại sản phẩm"
@@ -99,7 +99,7 @@ function CreateCategoryForm({ onSubmit }) {
             </label>
             <div className="relative">
               <input
-                placeholder="Nhập Tên Chi tiết loại sản phẩm"
+                placeholder="Nhập tên chi tiết loại sản phẩm"
                 value={brandName}
                 onChange={(e) => {
                   const newBrandName = e.target.value;

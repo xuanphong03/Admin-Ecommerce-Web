@@ -376,6 +376,7 @@ function UpdateProductForm({ productId, onSubmit }) {
                   }
                   placeholder="Nhập số lượng sản phẩm"
                   min={0}
+                  step={50}
                   type="number"
                   className={`border-gray w-full rounded border border-solid px-3 py-2 outline-blue-500`}
                 />

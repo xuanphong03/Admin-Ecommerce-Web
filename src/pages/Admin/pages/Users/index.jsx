@@ -1,7 +1,6 @@
-import { createContext, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import UserList from './UserList';
 import UserForm from './UserForm';
-import { register } from '~/pages/Auth/userSlice';
 import userApi from '~/apis/userApi';
 import { toast } from 'react-toastify';
 
@@ -19,22 +18,31 @@ function UsersPage() {
     try {
       // eslint-disable-next-line no-unused-vars
       const { retypePassword, ...registerData } = data;
-      await userApi.registerAccountRoleAdmin(registerData);
+      const response = await userApi.registerAccountRoleAdmin(registerData);
+      if (response.status === 400) {
+        throw new Error('Tài khoản đã tồn tại');
+      }
       toast.success('Tạo tài khoản quản trị thành công');
-      setShowForm(false);
     } catch (error) {
-      toast.error('Tạo tài khoản quản trị thất bại');
+      toast.error(error.message);
       throw new Error('Failed to create account role admin');
+    } finally {
+      setShowForm(false);
     }
   };
 
-  // const getUsers = async () => {
-  //   try {
-  //     const response = await
-  //   } catch (error) {
+  const getAllUsers = async () => {
+    try {
+      const response = await userApi.getAllUsers();
+      setUsers(response);
+    } catch (error) {
+      throw new Error('Failed to get all users');
+    }
+  };
 
-  //   }
-  // }
+  useEffect(() => {
+    getAllUsers();
+  }, []);
 
   return (
     <div>

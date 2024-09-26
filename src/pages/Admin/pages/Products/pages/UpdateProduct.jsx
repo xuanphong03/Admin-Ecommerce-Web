@@ -9,6 +9,7 @@ function UpdateProduct() {
     try {
       await productApi.updateProduct(data);
       toast.success('Chỉnh sửa sản phẩm thành công');
+      handleBackPrevPage();
     } catch (error) {
       toast.error('Chỉnh sửa sản phẩm thất bại');
     }

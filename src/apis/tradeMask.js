@@ -1,39 +1,21 @@
-import StorageKeys from '~/constants/storage-key';
 import axiosClient from './axiosClient';
 
 const tradeMask = {
   getAll() {
     const path = '/admin/tradeMask';
-    return axiosClient.get(path, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
-      },
-    });
+    return axiosClient.get(path);
   },
-  get(id) {},
   create(data) {
     const path = '/admin/tradeMask';
-    return axiosClient.post(path, data, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
-      },
-    });
+    return axiosClient.post(path, data);
   },
   delete(tradeMaskId) {
     const path = `/admin/tradeMask/${tradeMaskId}`;
-    return axiosClient.delete(path, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
-      },
-    });
+    return axiosClient.delete(path);
   },
   update(data) {
     const path = '/admin/update-tradeMask';
-    return axiosClient.put(path, data, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
-      },
-    });
+    return axiosClient.put(path, data);
   },
 };
 

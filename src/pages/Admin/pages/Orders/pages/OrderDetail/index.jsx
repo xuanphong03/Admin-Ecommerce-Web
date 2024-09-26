@@ -3,91 +3,171 @@ import PropTypes from 'prop-types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { formatPrice } from '~/utils/formatCurrency';
+import orderApi from '~/apis/orderApi';
 OrderDetail.propTypes = {};
 
 function OrderDetail(props) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [orderDetail, setOrderDetail] = useState({});
-
-  useEffect(() => {
+  const [invoiceDetail, setInvoiceDetail] = useState({
+    orderProducts: [],
+    totalPayment: 0,
+    shippingFee: 0,
+    percentDiscount: 0,
+  });
+  const getOrderDetail = async () => {
     try {
-      // Call api order detailt
+      const response = await orderApi.getDetail(id);
+      setOrderDetail(response);
+      console.log(response);
+
+      setInvoiceDetail({
+        orderProducts: response.orderDetails,
+        totalPayment: response.totalAmountOrder,
+        shippingFee: response.shippingFee,
+        percentDiscount: response.percentDiscount,
+      });
     } catch (error) {
-      // Throw error
+      throw new Error('Failed to get order detail');
     }
+  };
+  useEffect(() => {
+    getOrderDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   return (
-    <div className="px-5 py-6">
-      <button
-        onClick={() => navigate(-1)}
-        className="rounded bg-blue-500 px-5 py-2 text-sm text-white"
-      >
-        Quay lại
-      </button>
-      <h1 className="my-5 text-2xl font-medium uppercase">
-        Thông tin chi tiết về đơn hàng
-      </h1>
-      <table className="w-1/2">
-        <tbody className="w-full">
-          <tr className="w-full">
-            <th className="py-1 pr-5 text-start align-top">Mã đơn hàng</th>
-            <td>{uuidv4()}</td>
-          </tr>
-          <tr className="w-full">
-            <th className="py-1 pr-5 text-start align-top">Tên khách hàng</th>
-            <td>Nguyễn Xuân Phong</td>
-          </tr>
-          <tr className="w-full">
-            <th className="py-1 pr-5 text-start align-top">Số điện thoại</th>
-            <td>0865783359</td>
-          </tr>
-          <tr className="w-full">
-            <th className="py-1 pr-5 text-start align-top">Địa chỉ</th>
-            <td>Cụm 8, Vĩnh Ninh, Vĩnh Quỳnh, Thanh Trì, Hà Nội</td>
-          </tr>
-          <tr className="w-full">
-            <th className="py-1 pr-5 text-start align-top">Ngày đặt hàng</th>
-            <td>02/09/2024</td>
-          </tr>
-          <tr className="w-full">
-            <th className="py-1 pr-5 text-start align-top">Tình trạng</th>
-            <td>Đang xử lý</td>
-          </tr>
-          <tr className="w-full">
-            <th className="py-1 pr-5 text-start align-top">
-              Danh sách sản phẩm
-            </th>
-            <td className="flex flex-col gap-2">
-              {[...Array(5)].map((_, index) => {
-                const id = uuidv4();
-                return (
-                  <div key={id} className="flex gap-5 bg-gray-100 px-2 py-1">
-                    <div className="size-14">
-                      <img
-                        className="max-w-full object-cover"
-                        alt="product"
-                        src="https://pos.nvncdn.com/4260cc-24295/ps/20230729_r9mvJ1o6SE.jpeg"
-                      />
-                    </div>
-                    <div className="flex flex-col justify-between">
-                      <h3 className="font-medium">Áo hoodie</h3>
-                      <p className="text-sm">
-                        Màu xanh, size XL, số lượng: x10
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </td>
-          </tr>
-          <tr className="w-full">
-            <th className="py-1 pr-5 text-start align-top">Tổng hóa đơn</th>
-            <td>{formatPrice(10000000, 'VNĐ')}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div className="pb-10 text-sm text-gray-950">
+      <div className="flex items-center justify-between">
+        <h1>Thông tin chi tiết về đơn hàng</h1>
+        <button
+          onClick={() => navigate(-1)}
+          className="rounded bg-blue-500 px-5 py-2 text-white outline-none"
+        >
+          Quay lại
+        </button>
+      </div>
+      <hr className="mb-5 mt-2"></hr>
+      <div className="flex flex-col gap-10">
+        <div className="rounded border border-solid border-gray-200 px-5 py-4">
+          <h2 className="mb-4 font-medium uppercase">Thông tin người mua</h2>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-5">
+              <h3>Tên người nhận:</h3>
+              <p>{orderDetail.buyer_name}</p>
+            </div>
+            <div className="flex items-start gap-5">
+              <h3>Email:</h3>
+              <p>{orderDetail.emailAddress}</p>
+            </div>
+            <div className="flex items-start gap-5">
+              <h3>Số điện thoại:</h3>
+              <p>{orderDetail.phoneNumber}</p>
+            </div>
+            <div className="flex items-start gap-5">
+              <h3>Địa chỉ giao hàng:</h3>
+              <p>{orderDetail.address}</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded border border-solid border-gray-200 px-5 py-4">
+          <h2 className="mb-4 font-medium uppercase">Trạng thái đơn hàng</h2>
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start gap-5">
+              <h3>Tổng hóa đơn</h3>
+              <p>{formatPrice(invoiceDetail.totalPayment, 'VNĐ')}</p>
+            </div>
+            <div className="flex items-start gap-5">
+              <h3>Trạng thái giao hàng:</h3>
+              <p>
+                {orderDetail.orderStatus
+                  ? orderDetail.orderStatus
+                  : 'Đang xử lý'}
+              </p>
+            </div>
+            <div className="flex items-start gap-5">
+              <h3>Trạng thái thanh toán:</h3>
+              <p>
+                {orderDetail.paymentStatus
+                  ? 'Đã thanh toán'
+                  : 'Chưa thanh toán'}
+              </p>
+            </div>
+            <div className="flex items-start gap-5">
+              <h3>Phương thức thanh toán:</h3>
+              <p>{orderDetail.paymentMethods}</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded border border-solid border-gray-200 px-5 py-4">
+          <h2 className="mb-4 font-medium uppercase">
+            Danh sách sản phẩm đặt hàng
+          </h2>
+          <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
+              <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                  <th scope="col" className="px-16 py-3">
+                    <span className="sr-only">Ảnh</span>
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Sản phẩm
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Phân loại
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Đơn giá
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Số lượng
+                  </th>
+                  <th scope="col" className="px-6 py-3">
+                    Tổng tiền
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoiceDetail.orderProducts.map((orderProduct) => {
+                  return (
+                    <tr
+                      key={uuidv4()}
+                      className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600"
+                    >
+                      <td className="p-4">
+                        <img
+                          src={orderProduct.image}
+                          className="max-h-full w-16 max-w-full md:w-32"
+                          alt="Apple Watch"
+                        />
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
+                        Apple Watch
+                      </td>
+                      <td className="px-6 py-4 text-gray-900 dark:text-white">
+                        Màu {orderProduct.color}, Size {orderProduct.size}
+                      </td>
+                      <td className="px-6 py-4 text-gray-900 dark:text-white">
+                        {formatPrice(orderProduct.unitPrice, 'VNĐ')}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center">
+                          {orderProduct.quantity}
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        {formatPrice(orderProduct.totalPrice, 'VNĐ')}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
