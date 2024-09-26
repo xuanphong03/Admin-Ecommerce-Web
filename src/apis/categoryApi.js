@@ -1,39 +1,27 @@
-import StorageKeys from '~/constants/storage-key';
 import axiosClient from './axiosClient';
 
 const categoryApi = {
   getAll() {
     const path = '/global/categories';
-    return axiosClient.get(path, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
-      },
-    });
+    return axiosClient.get(path);
   },
-  get(id) {},
   create(data) {
     const path = '/admin/add-category';
-    return axiosClient.post(path, data, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
-      },
-    });
+    return axiosClient.post(path, data);
+  },
+  deleteSubCategory(categoryId, subCategory) {
+    // http://localhost:8080/api/v1/admin/delete-category/1/?subCategory=Áo Sơ Mi
+    // truyền thêm params subCategory
+    const path = `/admin/delete-category/${categoryId}/subCategory=${subCategory}`;
+    return axiosClient.delete(path);
   },
   delete(categoryId) {
     const path = `/admin/delete-category/${categoryId}`;
-    return axiosClient.delete(path, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
-      },
-    });
+    return axiosClient.delete(path);
   },
   update(data) {
     const path = '/admin/update-category';
-    return axiosClient.put(path, data, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem(StorageKeys.TOKEN)}`,
-      },
-    });
+    return axiosClient.put(path, data);
   },
 };
 

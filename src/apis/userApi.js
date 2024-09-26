@@ -15,6 +15,11 @@ const userApi = {
     const url = '/admin/add-admin';
     return axiosClient.post(url, data);
   },
+
+  getAllUsers() {
+    const url = '/admin/all-user';
+    return axiosClient.get(url);
+  },
 };
 
 export default userApi;

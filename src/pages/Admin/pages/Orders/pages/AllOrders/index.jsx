@@ -8,10 +8,21 @@ function AllOrdersPage() {
   const [orderList, setOrderList] = useState([]);
   const [filterByStatus, setFilterByStatus] = useState('');
 
+  const sortOrders = (orders) => {
+    return orders.sort((orderA, orderB) => {
+      if (orderA.id > orderB.id) {
+        return -1;
+      } else if (orderA.id < orderB.id) {
+        return 1;
+      }
+      return 0;
+    });
+  };
+
   const getOrderList = async () => {
     try {
       const response = await orderApi.getAll();
-      const reversedOrderList = response.reverse();
+      const reversedOrderList = sortOrders(response.reverse());
 
       if (!filterByStatus) {
         setOrderList(reversedOrderList);
@@ -31,20 +42,13 @@ function AllOrdersPage() {
     }
   };
 
-  const updateOrderStatus = async (id, status) => {
+  const updateOrderStatus = async (id, data) => {
     try {
-      const updatingOrder = orderList.find((order) => order.id === id);
-      await orderApi.update(1, {
-        address: updatingOrder.address,
-        phoneNumber: updatingOrder.phoneNumber,
-        emailAddress: updatingOrder.emailAddress,
-        paymentStatus: updatingOrder.paymentStatus,
-        orderStatus: status,
-      });
+      await orderApi.update(id, data);
       toast.success('Thay đổi trạng thái đơn hàng thành công');
       getOrderList();
     } catch (error) {
-      toast.success('Thay đổi trạng thái đơn hàng thất bại');
+      toast.error('Thay đổi trạng thái đơn hàng thất bại');
       throw new Error('Failed update order');
     }
   };

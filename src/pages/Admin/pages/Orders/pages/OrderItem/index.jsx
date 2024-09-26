@@ -1,5 +1,7 @@
 import moment from 'moment';
 import { Fragment, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { formatPrice } from '~/utils/formatCurrency';
 
 function OrderItem({
@@ -11,6 +13,7 @@ function OrderItem({
   totalAmountOrder,
   orderStatus,
   onUpdate,
+  paymentStatus,
 }) {
   const [status, setStatus] = useState(orderStatus);
   const handleChangeStatus = (e) => {
@@ -19,9 +22,15 @@ function OrderItem({
   };
 
   const handleUpdateStatus = () => {
-    const statusOrder = status === 'Đang xử lý' ? null : status;
+    const newStatusOrder = status === 'Đang xử lý' ? null : status;
+    if (newStatusOrder === orderStatus)
+      return toast.warning('Vui lòng thay đổi trạng thái đơn hàng để cập nhật');
     if (onUpdate) {
-      onUpdate(id, statusOrder);
+      const data = { orderStatus: newStatusOrder, paymentStatus };
+      if (newStatusOrder === 'Đã Nhận Hàng') {
+        data.paymentStatus = 1;
+      }
+      onUpdate(id, data);
     }
   };
 
@@ -56,12 +65,12 @@ function OrderItem({
         </button>
       </td>
       <td className="px-6 py-4">
-        <a
-          href="#"
+        <Link
+          to={`/orders/${id}`}
           className="font-medium text-blue-600 hover:underline dark:text-blue-500"
         >
           Chi tiết
-        </a>
+        </Link>
       </td>
     </Fragment>
   );

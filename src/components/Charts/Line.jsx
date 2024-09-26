@@ -1,18 +1,14 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { Line } from 'react-chartjs-2';
 import {
-  Chart as ChartJS,
   CategoryScale,
+  Chart as ChartJS,
+  Legend,
   LinearScale,
-  PointElement,
   LineElement,
+  PointElement,
   Title,
   Tooltip,
-  Legend,
-  plugins,
 } from 'chart.js';
-import { data } from 'autoprefixer';
+import { Line } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -25,8 +21,8 @@ ChartJS.register(
 );
 LineGraph.propTypes = {};
 
-function LineGraph(props) {
-  const data = {
+function LineGraph({ title, data, label }) {
+  const lineGraphData = {
     labels: [
       'Tháng Một',
       'Tháng Hai',
@@ -43,20 +39,9 @@ function LineGraph(props) {
     ],
     datasets: [
       {
-        label: 'Doanh thu năm 2024',
-        data: [
-          6000, 7000, 4000, 5000, 1000, 10000, 5000, 4000, 8000, 9000, 6000,
-          4000,
-        ],
+        label: label,
+        data: data,
         borderColor: 'rgb(75,192,192)',
-      },
-      {
-        label: 'Doanh thu năm 2023',
-        data: [
-          5000, 5000, 5000, 2000, 8000, 9000, 5000, 2000, 8000, 10000, 5000,
-          5000,
-        ],
-        borderColor: '#DF2648',
       },
     ],
   };
@@ -68,11 +53,25 @@ function LineGraph(props) {
       },
       title: {
         display: true,
-        text: 'Biểu đồ doanh thu',
+        text: title,
+      },
+    },
+    scales: {
+      y: {
+        ticks: {
+          stepSize: 10000000, // Giá trị bước
+          min: 0, // Giá trị nhỏ nhất
+          callback: function (value) {
+            if (Number.isInteger(value)) {
+              return value; // Hiển thị chỉ số nguyên
+            }
+            return null;
+          },
+        },
       },
     },
   };
-  return <Line options={option} data={data}></Line>;
+  return <Line options={option} data={lineGraphData}></Line>;
 }
 
 export default LineGraph;

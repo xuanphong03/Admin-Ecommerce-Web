@@ -106,7 +106,7 @@ function UserForm() {
               type="submit"
               className="rounded bg-green-500 px-5 py-2 text-sm text-white hover:opacity-80"
             >
-              Tạo tài khoản
+              {isSubmitting ? 'Đang xử lý...' : 'Tạo tài khoản'}
             </button>
           </div>
         </form>

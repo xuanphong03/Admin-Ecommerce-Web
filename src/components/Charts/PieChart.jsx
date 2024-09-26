@@ -6,13 +6,13 @@ import PropTypes from 'prop-types';
 
 PieChart.propTypes = {};
 
-function PieChart(props) {
+function PieChart({ title, labels, data }) {
   const barChartData = {
-    labels: ['Đang xử lý', 'Đang giao hàng', 'Đã giao hàng'],
+    labels: labels,
     datasets: [
       {
-        label: 'Thống kê trạng thái đơn hàng',
-        data: [1200, 300, 150],
+        label: 'Thống kê trạng thái các đơn hàng',
+        data: data,
         backgroundColor: [
           'rgba(153,250,134,0.9)',
           'rgba(235,158,102,0.9)',
@@ -30,7 +30,7 @@ function PieChart(props) {
       },
       title: {
         display: true,
-        text: 'Biểu đồ trạng thái các đơn hàng',
+        text: title,
       },
     },
   };
