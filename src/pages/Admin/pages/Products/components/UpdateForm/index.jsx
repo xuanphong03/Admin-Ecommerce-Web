@@ -63,6 +63,7 @@ function UpdateProductForm({ productId, onSubmit }) {
   const getProductList = async () => {
     try {
       const responseProduct = await productApi.getProduct({ id: productId });
+      console.log(responseProduct);
 
       setProductDetail(responseProduct);
       setValue('name', responseProduct.name);
@@ -116,28 +117,9 @@ function UpdateProductForm({ productId, onSubmit }) {
             ?.quantity || 0,
       })),
     }));
-    // const { colours, sizes, ...productInfo } = data;
+    console.log(quantityDetails);
 
-    // const images = [mainImage, ...subImageList];
-    // if (images.includes(null)) {
-    //   setIsEnoughImages(false);
-    //   return;
-    // } else {
-    //   setIsEnoughImages(true);
-    // }
     const formData = new FormData();
-    // console.log(images.size);
-
-    // for (let i = 0; i < images.length; i++) {
-    //   if (typeof images[i] === 'object' && images[i] !== null) {
-    //     formData.append('images', images[i]?.name);
-    //     // console.log(images[i]?.name);
-    //   } else {
-    //     formData.append('images', images[i]);
-    //     // console.log(images[i]?.name);
-    //   }
-    // }
-    // const formData = new FormData();
     for (let i = 0; i < images.length; i++) {
       formData.append('images', images[i]);
     }
@@ -159,8 +141,7 @@ function UpdateProductForm({ productId, onSubmit }) {
         imageMain: mainImage.name,
       }),
     );
-    console.log(productInfo.name);
-    console.log(productId);
+
     if (onSubmit) {
       await onSubmit(formData);
     }
@@ -376,7 +357,6 @@ function UpdateProductForm({ productId, onSubmit }) {
                   }
                   placeholder="Nhập số lượng sản phẩm"
                   min={0}
-                  step={50}
                   type="number"
                   className={`border-gray w-full rounded border border-solid px-3 py-2 outline-blue-500`}
                 />
