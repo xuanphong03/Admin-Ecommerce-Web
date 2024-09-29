@@ -22,6 +22,7 @@ import { client, over } from 'stompjs';
 import SockJS from 'sockjs-client';
 import StorageKeys from '~/constants/storage-key';
 import { EmojiStyle } from 'emoji-picker-react';
+import chatApi from '~/apis/chatApi';
 Chatroom.propTypes = {};
 
 const RECEIVER = {
@@ -71,18 +72,10 @@ function Chatroom(props) {
 
   const fetchOptions = async () => {
     try {
-      const response = await fetch(
-        'http://localhost:8080/api/v1/rest/getAllQuestions',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      const data = await response.json();
-      setOptions(data);
+      const response = await chatApi.getAllQuestions();
+      setOptions(response);
     } catch (error) {
-      console.error('Error fetching options:', error);
+      throw new Error('Failed to get options');
     }
   };
 
@@ -123,20 +116,10 @@ function Chatroom(props) {
   };
   const fetchOptions2 = async () => {
     try {
-      const response = await fetch(
-        'http://localhost:8080/api/v1/global/products-chat-bot',
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-      const data = await response.json();
-      console.log(data);
-
-      setNewOptions(data);
+      const response = await chatApi.getAllProducts();
+      setNewOptions(response);
     } catch (error) {
-      console.error('Error fetching options:', error);
+      throw new Error('Failed to get all products');
     }
   };
 
@@ -540,42 +523,6 @@ function Chatroom(props) {
             Nhắn tin
           </h2>
           <div className="flex space-x-2">
-            <button
-              type="button"
-              id="backhome"
-              className="flex size-8 items-center justify-center rounded border border-solid border-black text-xs tracking-wide"
-              onClick={backhome}
-              title="Back To Home"
-            >
-              <IoMdHome className="text-base" />
-            </button>
-            <button
-              type="button"
-              id="contactUs"
-              className="flex size-8 items-center justify-center rounded border border-solid border-black text-xs tracking-wide"
-              onClick={contactUs}
-              title="Contact Us"
-            >
-              <IoMdMail className="text-base" />
-            </button>
-            <button
-              type="buttonhelp"
-              id="guide"
-              className="flex size-8 items-center justify-center rounded border border-solid border-black text-xs tracking-wide"
-              onClick={guide}
-              title="Guide Chat Bot"
-            >
-              <IoMdHelp className="text-base" />
-            </button>
-            <button
-              type="buttonhelp"
-              id="IoIosList"
-              className="flex size-8 items-center justify-center rounded border border-solid border-black text-xs tracking-wide"
-              onClick={guide}
-              title="IoIosList"
-            >
-              <IoIosList className="text-base" />
-            </button>
             <button
               onClick={() => {
                 setChatting(false);

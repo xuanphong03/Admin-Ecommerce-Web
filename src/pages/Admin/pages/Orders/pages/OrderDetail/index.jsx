@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import moment from 'moment';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { formatPrice } from '~/utils/formatCurrency';
 import orderApi from '~/apis/orderApi';
+import { formatPrice } from '~/utils/formatCurrency';
 OrderDetail.propTypes = {};
 
-function OrderDetail(props) {
+function OrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [orderDetail, setOrderDetail] = useState({});
@@ -20,7 +20,6 @@ function OrderDetail(props) {
     try {
       const response = await orderApi.getDetail(id);
       setOrderDetail(response);
-      console.log(response);
 
       setInvoiceDetail({
         orderProducts: response.orderDetails,
@@ -98,6 +97,12 @@ function OrderDetail(props) {
               <h3>Phương thức thanh toán:</h3>
               <p>{orderDetail.paymentMethods}</p>
             </div>
+            <div className="flex items-start gap-5">
+              <h3>Thời gian đặt hàng</h3>
+              <p>
+                {moment(orderDetail.createAt).format('DD-MM-YYYY HH:mm:ss')}
+              </p>
+            </div>
           </div>
         </div>
         <div className="rounded border border-solid border-gray-200 px-5 py-4">
@@ -108,22 +113,22 @@ function OrderDetail(props) {
             <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
               <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  <th scope="col" className="px-16 py-3">
-                    <span className="sr-only">Ảnh</span>
+                  <th scope="col" className="px-16 py-3 text-center">
+                    Ảnh
                   </th>
                   <th scope="col" className="px-6 py-3">
                     Sản phẩm
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" className="px-6 py-3 text-center">
                     Phân loại
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" className="px-6 py-3 text-center">
                     Đơn giá
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" className="px-6 py-3 text-center">
                     Số lượng
                   </th>
-                  <th scope="col" className="px-6 py-3">
+                  <th scope="col" className="px-6 py-3 text-center">
                     Tổng tiền
                   </th>
                 </tr>
@@ -138,26 +143,26 @@ function OrderDetail(props) {
                       <td className="p-4">
                         <img
                           src={orderProduct.image}
-                          className="max-h-full w-16 max-w-full md:w-32"
+                          className="mx-auto max-h-full w-16 max-w-full md:w-24"
                           alt="Apple Watch"
                         />
                       </td>
                       <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">
                         Apple Watch
                       </td>
-                      <td className="px-6 py-4 text-gray-900 dark:text-white">
-                        Màu {orderProduct.color}, Size {orderProduct.size}
+                      <td className="px-6 py-4 text-center text-gray-900 dark:text-white">
+                        {orderProduct.color} / {orderProduct.size}
                       </td>
-                      <td className="px-6 py-4 text-gray-900 dark:text-white">
+                      <td className="px-6 py-4 text-center text-gray-900 dark:text-white">
                         {formatPrice(orderProduct.unitPrice, 'VNĐ')}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center">
+                        <div className="text-center">
                           {orderProduct.quantity}
                         </div>
                       </td>
 
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-center">
                         {formatPrice(orderProduct.totalPrice, 'VNĐ')}
                       </td>
                     </tr>

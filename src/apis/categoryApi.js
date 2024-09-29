@@ -10,7 +10,6 @@ const categoryApi = {
     return axiosClient.post(path, data);
   },
   deleteSubCategory(categoryId, subCategory) {
-    // http://localhost:8080/api/v1/admin/delete-category/1/?subCategory=Áo Sơ Mi
     // truyền thêm params subCategory
     const path = `/admin/delete-category/${categoryId}/subCategory=${subCategory}`;
     return axiosClient.delete(path);

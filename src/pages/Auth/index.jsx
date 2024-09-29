@@ -1,17 +1,13 @@
-import { useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-
-import { FaCheck } from 'react-icons/fa6';
-import userApi from '~/apis/userApi';
-import { useDispatch } from 'react-redux';
-import { toast } from 'react-toastify';
+import * as yup from 'yup';
 import { unwrapResult } from '@reduxjs/toolkit';
-import { login } from './userSlice';
+import { FaCheck } from 'react-icons/fa6';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-
-AuthenticationPage.propTypes = {};
+import { toast } from 'react-toastify';
+import { login } from './userSlice';
 
 function AuthenticationPage() {
   const dispatch = useDispatch();
@@ -22,31 +18,30 @@ function AuthenticationPage() {
   });
   const [rememberPassword, setRememberPassword] = useState(false);
 
-  const handleRememberPassword = (e) => {
+  const handleRememberPassword = () => {
     setRememberPassword((prevStatus) => !prevStatus);
   };
 
   const {
     handleSubmit,
     register,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
 
-  // const formSubmit = async (data) => {
-  //   const res = await userApi.login(data);
-  // };
-
-  const formSubmit = async (values) => {
+  const formSubmit = async (data) => {
     try {
-      const action = login(values);
+      const action = login(data);
       const resultAction = await dispatch(action);
-      const user = unwrapResult(resultAction);
-      // console.log('Infor user:', user);
+      unwrapResult(resultAction);
       navigate('/');
     } catch (error) {
-      toast.error('Error!!!');
+      toast.error('Tài khoản hoặc mật khẩu không chính xác');
+      throw new Error('Failed to login');
+    } finally {
+      reset();
     }
   };
 

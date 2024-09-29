@@ -183,7 +183,7 @@ function ProductsList() {
                     </td>
                     <td className="px-6 py-4">
                       <img
-                        className="size-10"
+                        className="max-h-20"
                         alt="product image"
                         src={imageMain}
                       />

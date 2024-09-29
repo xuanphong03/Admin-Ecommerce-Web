@@ -9,6 +9,8 @@ import OrdersPage from './pages/Orders';
 import ProductPage from './pages/Products';
 import QuestionAndAnswer from './pages/QA';
 import UsersPage from './pages/Users';
+import SupportChatbot from './pages/SupportChatbot';
+import ErrorPage from './pages/Error';
 AdminPage.propTypes = {};
 
 function AdminPage() {
@@ -30,6 +32,8 @@ function AdminPage() {
           <Route path="/orders/*" element={<OrdersPage />} />
           <Route path="/support" element={<QuestionAndAnswer />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/chatbot" element={<SupportChatbot />} />
+          <Route path="*" element={<ErrorPage />} />
         </Routes>
       </main>
       <Chatroom />
