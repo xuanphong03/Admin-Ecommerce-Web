@@ -229,7 +229,7 @@ function UpdateProductForm({ productId, onSubmit }) {
               className="border-gray w-full rounded border border-solid px-3 py-2 text-sm outline-blue-500"
             >
               <option value="" disabled>
-                ---Chọn Chi tiết loại sản phẩm---
+                ---Chọn chi tiết loại sản phẩm---
               </option>
               {subCategories?.map((brand) => (
                 <option value={brand} key={uuidv4()}>

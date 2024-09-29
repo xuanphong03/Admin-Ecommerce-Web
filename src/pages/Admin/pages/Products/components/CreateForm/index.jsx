@@ -200,12 +200,12 @@ function CreateProductForm({ onSubmit }) {
         </div>
         <div className="flex w-80 flex-col gap-1">
           <div className="flex flex-col gap-1 text-sm">
-            <label className='w-fit"'>Category</label>
+            <label className='w-fit"'>Loại sản phẩm</label>
             <select
               className="border-gray w-full rounded border border-solid px-3 py-2 text-sm outline-blue-500"
               {...register('category')}
             >
-              <option value="">Chọn danh mục</option>
+              <option value="">---Chọn loại sản phẩm---</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.name}>
                   {category.name}
@@ -223,13 +223,13 @@ function CreateProductForm({ onSubmit }) {
         {/* Dropdown cho Subcategory */}
         <div className="flex w-80 flex-col gap-1">
           <div className="flex flex-col gap-1 text-sm">
-            <label className="w-fit">Subcategory</label>
+            <label className="w-fit">Chi tiết loại sản phẩm</label>
             <select
               className="border-gray w-full rounded border border-solid px-3 py-2 text-sm outline-blue-500"
               {...register('subCategory')}
               disabled={!subcategories.length}
             >
-              <option value="">Chọn danh mục con</option>
+              <option value="">---Chọn chi tiết loại sản phẩm---</option>
               {subcategories.map((subcategory, index) => (
                 <option key={index} value={subcategory}>
                   {subcategory}
