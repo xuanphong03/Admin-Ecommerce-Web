@@ -11,7 +11,7 @@ import InputField from '~/components/form-controls/InputField';
 import TextAreaField from '~/components/form-controls/TextAreaField';
 
 import productApi from '~/apis/productApi';
-import { COLORS, SIZES } from '~/constants/variants';
+import { COLORS, PANTS_SIZES, SHIRT_SIZES } from '~/constants/variants';
 const schema = yup.object().shape({
   name: yup.string().required('Vui lòng nhập tên sản phẩm.'),
   brand: yup.string().required('Vui lòng nhập Chi tiết loại sản phẩm.'),
@@ -46,6 +46,7 @@ function UpdateProductForm({ productId, onSubmit }) {
     register,
     watch,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
@@ -63,8 +64,6 @@ function UpdateProductForm({ productId, onSubmit }) {
   const getProductList = async () => {
     try {
       const responseProduct = await productApi.getProduct({ id: productId });
-      console.log(responseProduct);
-
       setProductDetail(responseProduct);
       setValue('name', responseProduct.name);
       setValue('category', responseProduct.category);
@@ -117,7 +116,6 @@ function UpdateProductForm({ productId, onSubmit }) {
             ?.quantity || 0,
       })),
     }));
-    console.log(quantityDetails);
 
     const formData = new FormData();
     for (let i = 0; i < images.length; i++) {
@@ -301,11 +299,13 @@ function UpdateProductForm({ productId, onSubmit }) {
                 },
               }),
             }}
-            checkboxList={SIZES}
+            checkboxList={
+              getValues('category') === 'Quần' ? PANTS_SIZES : SHIRT_SIZES
+            }
             errorMessage={errors.sizes?.message}
           />
         </div>
-        <div className="flex w-80 flex-col gap-1">
+        <div className="flex flex-1 flex-col gap-1">
           <CheckboxField
             activeItemList={productColors}
             label="Màu sắc"
@@ -314,14 +314,20 @@ function UpdateProductForm({ productId, onSubmit }) {
                 onChange: (e) => {
                   const { checked, value } = e.target;
                   if (checked) {
-                    setProductQuantities((prev) => [
-                      ...prev,
-                      ...SIZES.map((size) => ({
-                        color: value,
-                        size,
-                        quantity: 0,
-                      })),
-                    ]);
+                    setProductQuantities((prev) => {
+                      const SIZES =
+                        getValues('category') === 'Quần'
+                          ? PANTS_SIZES
+                          : SHIRT_SIZES;
+                      return [
+                        ...prev,
+                        ...SIZES.map((size) => ({
+                          color: value,
+                          size,
+                          quantity: 0,
+                        })),
+                      ];
+                    });
                   } else {
                     setProductQuantities((prev) =>
                       prev.filter((item) => item.color !== value),
@@ -384,6 +390,7 @@ function UpdateProductForm({ productId, onSubmit }) {
               type="main"
               index={1}
               onSelect={handleOnSelect}
+              previewImage={mainImage}
               imageList={[mainImage, ...subImageList]}
             />
           </div>
@@ -394,6 +401,7 @@ function UpdateProductForm({ productId, onSubmit }) {
               type="sub"
               index={1}
               onSelect={handleOnSelect}
+              previewImage={subImageList[0]}
               imageList={[mainImage, ...subImageList]}
             />
           </div>
@@ -404,6 +412,7 @@ function UpdateProductForm({ productId, onSubmit }) {
               type="sub"
               index={2}
               onSelect={handleOnSelect}
+              previewImage={subImageList[1]}
               imageList={[mainImage, ...subImageList]}
             />
           </div>
@@ -414,6 +423,7 @@ function UpdateProductForm({ productId, onSubmit }) {
               type="sub"
               index={3}
               onSelect={handleOnSelect}
+              previewImage={subImageList[2]}
               imageList={[mainImage, ...subImageList]}
             />
           </div>
@@ -424,6 +434,7 @@ function UpdateProductForm({ productId, onSubmit }) {
               type="sub"
               index={4}
               onSelect={handleOnSelect}
+              previewImage={subImageList[3]}
               imageList={[mainImage, ...subImageList]}
             />
           </div>

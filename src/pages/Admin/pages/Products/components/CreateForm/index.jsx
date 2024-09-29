@@ -10,14 +10,15 @@ import ImageField from '~/components/form-controls/ImageField';
 import InputField from '~/components/form-controls/InputField';
 import TextAreaField from '~/components/form-controls/TextAreaField';
 
-import { COLORS, SIZES } from '~/constants/variants';
+import { COLORS, PANTS_SIZES, SHIRT_SIZES } from '~/constants/variants';
 const schema = yup.object().shape({
   name: yup.string().required('Vui lòng nhập tên sản phẩm.'),
   description: yup.string().required('Vui lòng nhập mô tả sản phẩm.'),
   subCategory: yup.string().required('Vui lòng chọn chỉ tiết loại sản phẩm.'),
   category: yup.string().required('Vui lòng chọn loại sản phẩm.'),
   saleDiscountPercent: yup
-    .number()
+    .number('Phần trăm khuyến mãi phải là số nguyên')
+    .typeError('Phần trăm khuyến mãi phải là một số hợp lệ')
     .integer('Phần trăm khuyến mãi phải là số nguyên')
     .min(0, 'Phần trăm khuyến mãi không được bé hơn 0')
     .max(100, 'Phần trăm khuyến mãi không được lớn hơn 100')
@@ -52,6 +53,7 @@ function CreateProductForm({ onSubmit }) {
     register,
     watch,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: yupResolver(schema),
@@ -81,6 +83,7 @@ function CreateProductForm({ onSubmit }) {
 
   // Khi category thay đổi, update subcategories
   useEffect(() => {
+    setValue('sizes', []);
     const category = categories.find((cat) => cat.name === selectedCategory);
     setSubcategories(category ? category.brands : []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -314,11 +317,13 @@ function CreateProductForm({ onSubmit }) {
                 },
               }),
             }}
-            checkboxList={SIZES}
+            checkboxList={
+              getValues('category') === 'Quần' ? PANTS_SIZES : SHIRT_SIZES
+            }
             errorMessage={errors.sizes?.message}
           />
         </div>
-        <div className="flex w-80 flex-col gap-1">
+        <div className="flex flex-1 flex-col gap-1">
           <CheckboxField
             activeItemList={productColors}
             label="Màu sắc"
@@ -327,14 +332,20 @@ function CreateProductForm({ onSubmit }) {
                 onChange: (e) => {
                   const { checked, value } = e.target;
                   if (checked) {
-                    setProductQuantities((prev) => [
-                      ...prev,
-                      ...SIZES.map((size) => ({
-                        color: value,
-                        size,
-                        quantity: 0, // Default to 1 when added
-                      })),
-                    ]);
+                    setProductQuantities((prev) => {
+                      const SIZES =
+                        getValues('category') === 'Quần'
+                          ? PANTS_SIZES
+                          : SHIRT_SIZES;
+                      return [
+                        ...prev,
+                        ...SIZES.map((size) => ({
+                          color: value,
+                          size,
+                          quantity: 0, // Default to 1 when added
+                        })),
+                      ];
+                    });
                   } else {
                     setProductQuantities((prev) =>
                       prev.filter((item) => item.color !== value),
@@ -354,9 +365,9 @@ function CreateProductForm({ onSubmit }) {
             productColors.map((color) => (
               <div key={uuidv4()} className="flex w-80 flex-col gap-1 text-sm">
                 <label className="mb-1 w-fit">
-                  Số lượng sản phẩm màu {''}
+                  Số lượng{' '}
                   <span className="font-medium capitalize">{color}</span>
-                  <span> size </span>
+                  <span> / </span>
                   <span className="font-medium capitalize">{size}</span>
                   <span className="text-red-500">*</span>
                 </label>

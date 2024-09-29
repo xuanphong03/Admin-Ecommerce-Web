@@ -10,7 +10,15 @@ ImageField.propTypes = {
   index: PropTypes.number,
 };
 
-function ImageField({ label, id, onSelect, type, index, imageList }) {
+function ImageField({
+  label,
+  id,
+  onSelect,
+  type,
+  index,
+  imageList,
+  previewImage = null,
+}) {
   const [image, setImage] = useState(null);
 
   const checkExistImage = (file) => {
@@ -47,11 +55,15 @@ function ImageField({ label, id, onSelect, type, index, imageList }) {
       <div className="flex w-full items-center justify-center">
         <label
           htmlFor={id}
-          className="flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+          className={`${image !== null ? 'bg-white' : 'bg-gray-50 hover:bg-gray-100 dark:hover:bg-gray-600'} flex h-64 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:border-gray-500`}
         >
-          <div className="flex flex-col items-center justify-center pb-6 pt-5">
-            {image !== null ? (
-              <img alt="image" src={image} />
+          <div className="flex max-h-full flex-col items-center justify-center pb-6 pt-5">
+            {image !== null || previewImage !== null ? (
+              <img
+                className="max-h-full"
+                alt="image"
+                src={image || previewImage}
+              />
             ) : (
               <Fragment>
                 <svg
