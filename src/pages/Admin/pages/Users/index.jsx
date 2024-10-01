@@ -23,6 +23,7 @@ function UsersPage() {
         throw new Error('Tài khoản đã tồn tại');
       }
       toast.success('Tạo tài khoản quản trị thành công');
+      getAllUsers();
     } catch (error) {
       toast.error(error.message);
       throw new Error('Failed to create account role admin');
@@ -34,7 +35,7 @@ function UsersPage() {
   const getAllUsers = async () => {
     try {
       const response = await userApi.getAllUsers();
-      setUsers(response);
+      setUsers(response.reverse());
     } catch (error) {
       throw new Error('Failed to get all users');
     }
