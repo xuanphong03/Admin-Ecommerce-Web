@@ -87,7 +87,7 @@ function UserForm() {
           </div>
           <div>
             <PasswordField
-              label="Họ và tên"
+              label="Nhập lại mật khẩu"
               id="retypePassword"
               placeholder="Nhập lại mật khẩu"
               errorMessage={errors.retypePassword?.message}

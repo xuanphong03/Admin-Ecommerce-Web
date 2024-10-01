@@ -16,6 +16,7 @@ function OrderDetail() {
     shippingFee: 0,
     percentDiscount: 0,
   });
+
   const getOrderDetail = async () => {
     try {
       const response = await orderApi.getDetail(id);

@@ -1,17 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ChatbotTable from './ChatbotTable';
 import ChatbotForm from './ChatbotForm';
+import chatbotApi from '~/apis/chatbotApi';
+import { toast } from 'react-toastify';
 
 function SupportChatbot() {
   const [showForm, setShowForm] = useState(false);
-
+  const [questions, setQuestions] = useState([]);
   const handleToggleForm = () => {
     setShowForm(!showForm);
   };
 
-  const handleSubmitForm = async (data) => {
-    console.log(data);
+  const handleSubmitForm = async (payload) => {
+    try {
+      const response = await chatbotApi.create(payload);
+      toast.success('Thêm dữ liệu thành công');
+      getAllQuestions();
+    } catch (error) {
+      throw new Error('Failed to create new question');
+    }
   };
+
+  const getAllQuestions = async () => {
+    try {
+      const response = await chatbotApi.getAllQuestions();
+      setQuestions(response.reverse());
+    } catch (error) {
+      throw new Error('Failed get all question chatbot');
+    }
+  };
+
+  useEffect(() => {
+    getAllQuestions();
+  }, []);
 
   return (
     <div>
@@ -36,7 +57,7 @@ function SupportChatbot() {
         </button>
       </div>
       <hr className="my-2"></hr>
-      <ChatbotTable />
+      <ChatbotTable questions={questions} />
     </div>
   );
 }
