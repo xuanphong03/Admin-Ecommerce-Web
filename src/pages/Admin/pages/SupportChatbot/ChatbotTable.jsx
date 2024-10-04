@@ -5,7 +5,12 @@ ChatbotTable.propTypes = {
   questions: PropTypes.array,
 };
 
-function ChatbotTable({ questions }) {
+function ChatbotTable({ questions, onDelete }) {
+  const handleDelete = (id) => {
+    if (window.confirm('Bạn chắc chắn muốn xóa câu hỏi này chứ?')) {
+      onDelete(id);
+    }
+  };
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
@@ -17,13 +22,16 @@ function ChatbotTable({ questions }) {
             <th scope="col" className="px-6 py-3">
               Câu hỏi
             </th>
-            {/* <th scope="col" className="px-6 py-3">
+            <th scope="col" className="px-6 py-3">
+              Câu trả lời
+            </th>
+            <th scope="col" className="px-6 py-3">
               Xóa
-            </th> */}
+            </th>
           </tr>
         </thead>
         <tbody>
-          {questions?.map((question, index) => {
+          {questions?.map(({ id, question, answer }, index) => {
             return (
               <tr
                 key={uuidv4()}
@@ -36,11 +44,16 @@ function ChatbotTable({ questions }) {
                 >
                   {question}
                 </th>
-                {/* <td className="px-6 py-4">
-                  <button className="font-medium text-red-600 hover:underline dark:text-red-500">
+                <td className="px-6 py-4">{answer}</td>
+
+                <td className="px-6 py-4">
+                  <button
+                    onClick={() => handleDelete(id)}
+                    className="font-medium text-red-600 hover:underline dark:text-red-500"
+                  >
                     Xóa
                   </button>
-                </td> */}
+                </td>
               </tr>
             );
           })}
