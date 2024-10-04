@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
-import ChatbotTable from './ChatbotTable';
-import ChatbotForm from './ChatbotForm';
-import chatbotApi from '~/apis/chatbotApi';
 import { toast } from 'react-toastify';
+import chatbotApi from '~/apis/chatbotApi';
+import ChatbotForm from './ChatbotForm';
+import ChatbotTable from './ChatbotTable';
 
 function SupportChatbot() {
   const [showForm, setShowForm] = useState(false);
   const [questions, setQuestions] = useState([]);
+
   const handleToggleForm = () => {
     setShowForm(!showForm);
   };
 
   const handleSubmitForm = async (payload) => {
     try {
-      const response = await chatbotApi.create(payload);
+      await chatbotApi.create(payload);
       toast.success('Thêm dữ liệu thành công');
+
       getAllQuestions();
     } catch (error) {
       throw new Error('Failed to create new question');
@@ -23,10 +25,22 @@ function SupportChatbot() {
 
   const getAllQuestions = async () => {
     try {
-      const response = await chatbotApi.getAllQuestions();
+      const response = await chatbotApi.getAll();
       setQuestions(response.reverse());
     } catch (error) {
       throw new Error('Failed get all question chatbot');
+    }
+  };
+
+  const deleteQuestion = async (id) => {
+    try {
+      const response = await chatbotApi.delete(id);
+      if (response.status === 200) {
+        toast.success('Xóa câu hỏi thành công');
+        getAllQuestions();
+      }
+    } catch (error) {
+      throw new Error('Failed to delete question');
     }
   };
 
@@ -57,7 +71,7 @@ function SupportChatbot() {
         </button>
       </div>
       <hr className="my-2"></hr>
-      <ChatbotTable questions={questions} />
+      <ChatbotTable questions={questions} onDelete={deleteQuestion} />
     </div>
   );
 }
