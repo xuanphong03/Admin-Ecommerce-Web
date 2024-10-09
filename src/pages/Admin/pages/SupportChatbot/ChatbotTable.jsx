@@ -5,12 +5,17 @@ ChatbotTable.propTypes = {
   questions: PropTypes.array,
 };
 
-function ChatbotTable({ questions, onDelete }) {
+function ChatbotTable({ questions, onDelete, onEdit }) {
   const handleDelete = (id) => {
     if (window.confirm('Bạn chắc chắn muốn xóa câu hỏi này chứ?')) {
       onDelete(id);
     }
   };
+
+  const handleEdit = (questionId, question, answer) => {
+    onEdit(questionId, question, answer);
+  };
+
   return (
     <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
       <table className="w-full text-left text-sm text-gray-500 rtl:text-right dark:text-gray-400">
@@ -24,6 +29,9 @@ function ChatbotTable({ questions, onDelete }) {
             </th>
             <th scope="col" className="px-6 py-3">
               Câu trả lời
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Sửa
             </th>
             <th scope="col" className="px-6 py-3">
               Xóa
@@ -45,7 +53,14 @@ function ChatbotTable({ questions, onDelete }) {
                   {question}
                 </th>
                 <td className="px-6 py-4">{answer}</td>
-
+                <td className="px-6 py-4">
+                  <button
+                    onClick={() => handleEdit(id, question, answer)}
+                    className="font-medium text-blue-600 hover:underline dark:text-blue-500"
+                  >
+                    Sửa
+                  </button>
+                </td>
                 <td className="px-6 py-4">
                   <button
                     onClick={() => handleDelete(id)}
