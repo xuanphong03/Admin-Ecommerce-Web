@@ -3,10 +3,14 @@ import { toast } from 'react-toastify';
 import chatbotApi from '~/apis/chatbotApi';
 import ChatbotForm from './ChatbotForm';
 import ChatbotTable from './ChatbotTable';
+import UpdateForm from './UpdateForm';
 
 function SupportChatbot() {
   const [showForm, setShowForm] = useState(false);
   const [questions, setQuestions] = useState([]);
+  const [editing, setEditing] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState(null);
+  const [editingQuestionId, setEditingQuestionId] = useState(null);
 
   const handleToggleForm = () => {
     setShowForm(!showForm);
@@ -44,6 +48,25 @@ function SupportChatbot() {
     }
   };
 
+  const handleEditQuestion = (id, question, answer) => {
+    setEditing(true);
+    setEditingQuestion({ question, answer });
+    setEditingQuestionId(id);
+  };
+
+  const handleUpdateQuestion = async (payload) => {
+    try {
+      await chatbotApi.update(editingQuestionId, payload);
+      setEditingQuestion(null);
+      setEditingQuestionId(null);
+      toast.success('Cập nhật thành công');
+      getAllQuestions();
+    } catch (error) {
+      toast.error('Cập nhật thất bại');
+      throw new Error('Error');
+    }
+  };
+
   useEffect(() => {
     getAllQuestions();
   }, []);
@@ -61,6 +84,18 @@ function SupportChatbot() {
           </div>
         </div>
       )}
+      {editing && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+          <div className="absolute">
+            <UpdateForm
+              onToggle={() => setEditing(false)}
+              onUpdate={handleUpdateQuestion}
+              question={editingQuestion}
+            />
+          </div>
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <h1>Danh sách các câu hỏi hỗ trợ Chatbot</h1>
         <button
@@ -71,7 +106,11 @@ function SupportChatbot() {
         </button>
       </div>
       <hr className="my-2"></hr>
-      <ChatbotTable questions={questions} onDelete={deleteQuestion} />
+      <ChatbotTable
+        onEdit={handleEditQuestion}
+        questions={questions}
+        onDelete={deleteQuestion}
+      />
     </div>
   );
 }
