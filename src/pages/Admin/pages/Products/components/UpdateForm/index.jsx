@@ -255,7 +255,6 @@ function UpdateProductForm({ productId, onSubmit }) {
             register={{ ...register('originalPrice') }}
             required={true}
             type="number"
-            step={1000}
             min={0}
             placeholder="Nhập giá sản phẩm"
           />
@@ -382,7 +381,7 @@ function UpdateProductForm({ productId, onSubmit }) {
         />
       </div>
       <div className="mt-5">
-        <div className="flex justify-between">
+        <div className="flex gap-5">
           <div className="w-56">
             <ImageField
               id="main-image"

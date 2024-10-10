@@ -166,17 +166,19 @@ function CreateProductForm({ onSubmit }) {
   };
 
   const updateQuantity = (e, color, size) => {
-    const newQuantity = e.target.value;
+    const newQuantity = +e.target.value;
+
     setProductQuantities((prev) => {
       const existingIndex = prev.findIndex(
         (item) => item.color === color && item.size === size,
       );
+
       if (existingIndex !== -1) {
         const updated = [...prev];
-        updated[existingIndex] = { color, size, quantity: +newQuantity };
+        updated[existingIndex] = { color, size, quantity: newQuantity };
         return updated;
       } else {
-        return [...prev, { color, size, quantity: +newQuantity }];
+        return [...prev, { color, size, quantity: newQuantity }];
       }
     });
   };
@@ -263,7 +265,6 @@ function CreateProductForm({ onSubmit }) {
             }}
             required={true}
             type="number"
-            step={1000}
             placeholder="Nhập giá sản phẩm"
           />
         </div>
@@ -286,7 +287,6 @@ function CreateProductForm({ onSubmit }) {
             }}
             required={true}
             type="number"
-            step={10}
             placeholder="Nhập phần trăm khuyến mãi"
           />
         </div>
@@ -342,7 +342,7 @@ function CreateProductForm({ onSubmit }) {
                         ...SIZES.map((size) => ({
                           color: value,
                           size,
-                          quantity: 0, // Default to 1 when added
+                          quantity: 0,
                         })),
                       ];
                     });
@@ -373,7 +373,6 @@ function CreateProductForm({ onSubmit }) {
                 </label>
                 <input
                   onChange={(e) => updateQuantity(e, color, size)}
-                  autoComplete="off"
                   value={
                     productQuantities.find(
                       (q) => q.color === color && q.size === size,
@@ -381,7 +380,6 @@ function CreateProductForm({ onSubmit }) {
                   }
                   placeholder="Nhập số lượng sản phẩm"
                   min={0}
-                  step={50}
                   type="number"
                   className={`border-gray w-full rounded border border-solid px-3 py-2 outline-blue-500`}
                 />
@@ -401,7 +399,7 @@ function CreateProductForm({ onSubmit }) {
         />
       </div>
       <div className="mt-5">
-        <div className="flex justify-between">
+        <div className="flex gap-5">
           <div className="w-56">
             <ImageField
               id="main-image"

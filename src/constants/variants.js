@@ -12,6 +12,8 @@ export const PANTS_SIZES = [
   { value: '32', name: '32' },
 ];
 export const COLORS = [
+  { value: 'Đen', name: 'Đen' },
+  { value: 'Nâu', name: 'Nâu' },
   { value: 'Đỏ', name: 'Đỏ' },
   { value: 'Xám', name: 'Xám' },
   { value: 'Trắng', name: 'Trắng' },
